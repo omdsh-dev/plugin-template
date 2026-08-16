@@ -20,7 +20,7 @@ Use `cordis-fabric/testkit` for one transformed target plus handler, asserted on
 Compose a real profile tree (isolated `DSH_HOME`, bundle layers in `dsh.profile.bundles` order, the trio installed in the profile) and assert all three states:
 
 1. **Plain `dsh` skips the row** — the app boots, and the Fabric-required plugin is absent from the mounted roster and the served client manifest. This is the normal non-fabric behavior, not an error.
-2. **`fabric-dsh` loads it** — the boot succeeds, the plugin appears in the client manifest, the required patch recorded a binding (the post-boot check fails the boot when it did not), and the boot output carries the `fabric-dsh:` launch marker printed by the preload (its absence means the hooks never installed).
+2. **`fabric-dsh` loads it** — the boot succeeds, the plugin appears in the client manifest, the required patch recorded a binding (the post-boot check fails the boot when it did not), and the boot output carries the preload's `fabric-dsh:` launch marker followed by the hook summary (each patch with its hooked target file and node count, or "not hooked"); the marker's absence means the hooks never installed.
 3. **Plain `dsh` with an explicit enable fails** — enabling the Fabric-required row in the profile layer without the launcher must fail loud ("enabled on a plain-dsh boot", hooks not installed).
 
 Boot the CLI from the official checkout with the profile's `DSH_HOME`; clear a stale `TSX_TSCONFIG_PATH` from the environment (the launcher pins the harness tsconfig itself).
