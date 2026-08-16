@@ -86,6 +86,9 @@ DSH 会发现在 `.agents/skills/` 下的仓库本地工作流。完整流程从
 | [`dsh-plugin-compose`](.agents/skills/dsh-plugin-compose/SKILL.md) | 把 bundle 安装进隔离 profile 并证明有效激活。 |
 | [`dsh-plugin-test`](.agents/skills/dsh-plugin-test/SKILL.md) | 验证 Loader 导出、行为、销毁、组合、快照与产物。 |
 | [`dsh-plugin-release`](.agents/skills/dsh-plugin-release/SKILL.md) | 在不隐式发布的前提下检查本地、Git 或 npm 分发就绪度。 |
+| [`dsh-plugin-fabric-contract`](.agents/skills/dsh-plugin-fabric-contract/SKILL.md) | 建立 Fabric 层模型:trio 三包、两种启动形态、Fabric 依赖行与门禁。 |
+| [`dsh-plugin-fabric-patch`](.agents/skills/dsh-plugin-fabric-patch/SKILL.md) | 编写 patch stub、运行时 handler 与浏览器重写,避开各坑。 |
+| [`dsh-plugin-fabric-verify`](.agents/skills/dsh-plugin-fabric-verify/SKILL.md) | 端到端证明绑定与三态启动矩阵。 |
 
 复制模板时保留这些目录,这样未来扎根于插件仓库的会话能沿用同一工作流。
 
