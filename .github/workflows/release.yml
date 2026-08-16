@@ -1,0 +1,40 @@
+name: release
+
+# Every push to main builds the package and publishes the packed tarball to
+# a GitHub Release tagged v<version> (the version from package.json). Bump
+# the version to cut a new release; re-pushing the same version refreshes
+# that release's artifact.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm run prepare
+      - name: Pack the artifact
+        run: pnpm pack --pack-destination dist
+      - name: Publish to the version release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/*.tgz --clobber
+          else
+            gh release create "$tag" dist/*.tgz --title "$tag" --generate-notes
+          fi

@@ -111,6 +111,13 @@ pnpm run prepare
 
 The development build and prepare build use separate configurations, but both are fully contained in this repository. `pnpm run build` is the development/CI type-safety gate. `pnpm run prepare` is the consumer-side artifact build for Git and tarball installation.
 
+## CI
+
+Two GitHub Actions workflows ship with the template:
+
+- `.github/workflows/ci.yml` — every push to `main` and every pull request: install with the frozen lockfile, `verify:self-contained`, typecheck, tests, build, and prepare.
+- `.github/workflows/release.yml` — every push to `main`: builds, packs the tarball (`pnpm pack`), and publishes it to a GitHub Release tagged `v<version>` from `package.json`. Bump `version` to cut a new release; re-pushing the same version refreshes that release's artifact.
+
 ## Profile activation
 
 The package manifest declares the bundle patch:

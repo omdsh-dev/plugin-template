@@ -111,6 +111,13 @@ pnpm run prepare
 
 开发构建与 prepare 构建使用独立配置,但都完全包含在本仓库内。`pnpm run build` 是开发/CI 类型安全门禁。`pnpm run prepare` 是 Git 与 tarball 安装的消费者侧产物构建。
 
+## CI
+
+模板自带两个 GitHub Actions 工作流:
+
+- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、`verify:self-contained`、typecheck、测试、构建与 prepare。
+- `.github/workflows/release.yml` — 每次推送到 `main`:构建并 `pnpm pack` 打包 tarball,发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
+
 ## Profile 激活
 
 包 manifest 声明 bundle 补丁:
