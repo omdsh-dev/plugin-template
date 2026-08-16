@@ -77,6 +77,9 @@ DSH discovers the repository-local workflow under `.agents/skills/`. Start with 
 | [`dsh-plugin-compose`](.agents/skills/dsh-plugin-compose/SKILL.md) | Install the bundle into an isolated profile and prove effective activation. |
 | [`dsh-plugin-test`](.agents/skills/dsh-plugin-test/SKILL.md) | Verify Loader exports, behavior, disposal, composition, snapshots, and artifacts. |
 | [`dsh-plugin-release`](.agents/skills/dsh-plugin-release/SKILL.md) | Check local, Git, or npm distribution readiness without publishing implicitly. |
+| [`dsh-plugin-fabric-contract`](.agents/skills/dsh-plugin-fabric-contract/SKILL.md) | Model the Fabric layer: trio packages, launch forms, Fabric-required rows, and the gate. |
+| [`dsh-plugin-fabric-patch`](.agents/skills/dsh-plugin-fabric-patch/SKILL.md) | Write the patch stub, runtime handler, and browser rewrite without the traps. |
+| [`dsh-plugin-fabric-verify`](.agents/skills/dsh-plugin-fabric-verify/SKILL.md) | Prove bindings and the three-state boot matrix end to end. |
 
 Keep these directories when copying the template so future sessions rooted in the plugin repository retain the same workflow.
 

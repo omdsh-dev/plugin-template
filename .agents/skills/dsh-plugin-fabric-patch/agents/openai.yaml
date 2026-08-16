@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Fabric Patch"
+  short_description: "Write the Fabric patch stub and runtime handler"
+  default_prompt: "Use $dsh-plugin-fabric-patch to write the patch stub, runtime handler, and browser rewrite for this plugin."

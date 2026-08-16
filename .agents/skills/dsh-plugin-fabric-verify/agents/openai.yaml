@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Fabric Plugin"
+  short_description: "Prove the Fabric plugin's bindings and boot matrix"
+  default_prompt: "Use $dsh-plugin-fabric-verify to run the binding fixtures and the three-state boot matrix for this plugin."
