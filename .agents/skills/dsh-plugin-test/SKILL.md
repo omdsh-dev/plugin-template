@@ -78,6 +78,16 @@ After build, import each public runtime entry from `lib/` under plain Node and v
 
 Use `pnpm pack --dry-run --json` to inspect files only in the release stage or when exports/files changed. A packed-consumer or Git-install smoke belongs to `dsh-plugin-release` at `.agents/skills/dsh-plugin-release/SKILL.md`.
 
+## Clear the harness tsconfig pin
+
+The DSH agent shell exports `TSX_TSCONFIG_PATH` pointing at the harness's own `tsconfig.json`. That pin leaks into tsx-driven scripts (tests, `prepare`, config loaders) and overrides the repository's entry-tsconfig discovery, which mis-resolves const enums and path aliases. Clear it per command when running tests or builds under the agent shell:
+
+```sh
+TSX_TSCONFIG_PATH= pnpm test
+```
+
+Do not unset it globally in the session environment and never commit the pin into repository configs; an empty per-command override is the whole fix.
+
 ## Select commands narrowly
 
 Run exact test files or names while iterating, then the package's complete test script before claiming package-level success. Add focused coverage only when it provides evidence for changed source; do not lower thresholds, use `--passWithNoTests`, or exclude affected modules to force green output. Real-provider e2e runs only when required credentials are available, and secrets never appear in output.
