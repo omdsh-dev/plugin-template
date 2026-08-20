@@ -40,7 +40,7 @@ The minimum package evidence includes a real Loader export-shape test, schema/de
 
 ## Build and distribution
 
-The development build is:
+The development and release build is:
 
 ```sh
 pnpm run typecheck
@@ -48,12 +48,10 @@ pnpm test
 pnpm run build
 ```
 
-The self-contained prepare build is:
-
-```sh
-pnpm run prepare
-```
-
-It emits declarations and runtime JavaScript using only this repository's installed dependencies. `pnpm pack --dry-run --json` runs lifecycle scripts; inspect its final file list and restore a development build afterward when the pack lifecycle cleans or replaces generated files.
-
-A package is ready for Git or npm only when every manifest-declared runtime and type entry exists after the relevant consumer lifecycle. Publishing, pushing, tagging, and registry operations remain separately authorized actions.
+The release build produces a ready-made artifact; `pnpm pack --dry-run --json`
+inspects the final file list. It emits declarations and runtime JavaScript from
+`src/` using only this repository's installed dependencies. Profile/plugin
+installation consumes that packed artifact and does not run an install-time
+`prepare` hook. A package is ready for packed or GitHub Release distribution
+only when every manifest-declared runtime and type entry exists after the
+build.

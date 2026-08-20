@@ -16,7 +16,7 @@ patchedDependencies:
   'package-name@1.2.3': patches/package-name@1.2.3.patch
 ```
 
-Keep the patch version exact, document why the patch is required, and remove it when the upstream dependency contains the fix. A patch that affects the Git prepare build must be present in source control and covered by clean-install, `pnpm run prepare`, and pack verification. Do not add an empty `patchedDependencies` block when the plugin has no patches.
+Keep the patch version exact, document why the patch is required, and remove it when the upstream dependency contains the fix. A patch that affects the build must be present in source control and covered by clean-install, `pnpm run build`, and pack verification. Do not add an empty `patchedDependencies` block when the plugin has no patches.
 
 ## DSH host patches
 

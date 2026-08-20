@@ -3,5 +3,7 @@ packages:
 
 autoInstallPeers: false
 
+# Runtime and declaration builds run explicitly in CI and before packing; no
+# install-time prepare hook is required. Keep native build approval narrow.
 allowBuilds:
   esbuild: true

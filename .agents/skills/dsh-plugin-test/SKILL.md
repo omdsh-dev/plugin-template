@@ -71,16 +71,15 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
-pnpm run prepare
 ```
 
-After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Run `pnpm run prepare` separately when Git or tarball installation is supported; verify both runtime entries and declarations after prepare. Prepare is an artifact check and does not replace the full development typecheck.
+After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Use `pnpm pack --dry-run --json` to verify the ready-made release artifact contains the runtime entries and declarations; packaging is an artifact check and does not replace the full development typecheck.
 
 Use `pnpm pack --dry-run --json` to inspect files only in the release stage or when exports/files changed. A packed-consumer or Git-install smoke belongs to `dsh-plugin-release` at `.agents/skills/dsh-plugin-release/SKILL.md`.
 
 ## Clear the harness tsconfig pin
 
-The DSH agent shell exports `TSX_TSCONFIG_PATH` pointing at the harness's own `tsconfig.json`. That pin leaks into tsx-driven scripts (tests, `prepare`, config loaders) and overrides the repository's entry-tsconfig discovery, which mis-resolves const enums and path aliases. Clear it per command when running tests or builds under the agent shell:
+The DSH agent shell exports `TSX_TSCONFIG_PATH` pointing at the harness's own `tsconfig.json`. That pin leaks into tsx-driven scripts (tests and config loaders) and overrides the repository's entry-tsconfig discovery, which mis-resolves const enums and path aliases. Clear it per command when running tests under the agent shell:
 
 ```sh
 TSX_TSCONFIG_PATH= pnpm test

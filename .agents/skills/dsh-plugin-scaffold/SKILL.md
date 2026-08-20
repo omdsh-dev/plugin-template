@@ -5,7 +5,7 @@ description: Use after dsh-plugin-plan to create a new standalone DSH plugin rep
 
 # Scaffold a Plugin Repository
 
-This skill creates a clean standalone repository from the project-root `README.md` contract. It is guidance, not a blind copy script: inspect the source and target first, preserve the template's build split, and stop rather than overwriting an existing non-empty directory.
+This skill creates a clean standalone repository from the project-root `README.md` contract. It is guidance, not a blind copy script: inspect the source and target first, preserve the template's direct source-to-artifact build, and stop rather than overwriting an existing non-empty directory.
 
 ## Required handoff
 
@@ -20,12 +20,11 @@ Validate names before copying:
 
 ## Copy the source skeleton
 
-Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve these two build paths:
+Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve one build path:
 
-- development/CI: `tsc -b` emits declarations into `lib/types`, then `tsdown.config.ts` bundles those emitted modules;
-- Git/tarball installation: `scripts/prepare.mjs` emits declarations with `tsconfig.prepare.dts.json`, then `tsdown.prepare.config.ts` bundles directly from `src` with `tsconfig.prepare.json`.
+- development/CI and release: `tsdown.config.ts` compiles the host entries directly from `src/`, while `tsc --noEmit` performs the source and test typechecks.
 
-Both paths must resolve only files and dependencies declared inside the repository; neither may use a repository-external project reference.
+The build resolves only files and dependencies declared inside the repository; it does not use a repository-external project reference or install-time lifecycle build.
 
 Preserve the scalable skeleton: `src/config.ts`, `src/runtime.ts`, `src/README.md`, `tests/harness.ts`, `tests/README.md`, `tests/snapshots/README.md`, and `patches/README.md`. These are the baseline separation and local contracts for feature modules, shared test composition, visible-output fixtures, and dependency or DSH-host patches; do not copy Turtle UI product-specific directories unless the planned plugin owns those capabilities.
 
@@ -41,7 +40,7 @@ Update identity deliberately in these owners:
 - `src/invariant.ts`: module path, exact `PACKAGE_NAME`, companion plugin name, and invariant explanation;
 - `tests/plugin.spec.ts`: package description, expected plugin id, configuration assertions;
 - `cordis.patch.yml`: package names, deployment-local row ids, and planned configuration;
-- `tsconfig.base.json`, `tsconfig.json`, `tsconfig.vitest.json`, `tsconfig.prepare*.json`, and `scripts/*.mjs`: local compiler, artifact, and boundary-verification topology;
+- `tsconfig.json`, `tsconfig.vitest.json`, `tsdown.config.ts`, and `scripts/*.mjs`: local compiler, artifact, and boundary-verification topology;
 - `README.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
 
 Search afterward for all template markers in identity owners, excluding this reusable skill suite:
@@ -82,7 +81,6 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
-pnpm run prepare
 ```
 
 If the execution sandbox, network, native build, or package-manager state blocks one command, preserve its exact failure and retry unchanged only through the environment's approved narrow escalation path. Do not rewrite dependencies to hide an environmental denial.

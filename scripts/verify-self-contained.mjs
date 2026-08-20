@@ -77,6 +77,10 @@ for (const filePath of textFiles) {
 }
 
 for (const requiredPath of [
+  'package.json',
+  'tsconfig.json',
+  'tsconfig.vitest.json',
+  'tsdown.config.ts',
   'src/README.md',
   'src/config.ts',
   'src/runtime.ts',
@@ -89,6 +93,23 @@ for (const requiredPath of [
 }
 
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+if (packageJson.scripts?.prepare !== undefined) failures.push('package.json: install-time prepare script is forbidden')
+for (const obsoletePath of ['scripts/prepare.mjs', 'tsconfig.base.json', 'tsconfig.prepare.json', 'tsconfig.prepare.dts.json', 'tsdown.prepare.config.ts']) {
+  if (existsSync(join(root, obsoletePath))) failures.push(`obsolete prepare/build file remains: ${obsoletePath}`)
+}
+if (packageJson.main !== 'lib/index.js') failures.push('package.json: main must point to lib/index.js')
+if (packageJson.types !== 'lib/index.d.ts') failures.push('package.json: types must point to lib/index.d.ts')
+const rootExport = packageJson.exports?.['.']
+if (rootExport?.types !== './lib/index.d.ts' || rootExport?.default !== './lib/index.js') failures.push('package.json: root export must point to lib/index.js and lib/index.d.ts')
+const invariantExport = packageJson.exports?.['./invariant']
+if (invariantExport?.types !== './lib/invariant.d.ts' || invariantExport?.default !== './lib/invariant.js') failures.push('package.json: invariant export must point to lib/invariant.js and lib/invariant.d.ts')
+if (packageJson.exports?.['./src/*'] !== undefined) failures.push('package.json: source export must not be published')
+for (const requiredFilePattern of ['lib/**/*.js', 'lib/**/*.js.map', 'lib/**/*.d.ts', 'lib/**/*.d.ts.map', 'cordis.patch.yml']) {
+  if (!packageJson.files?.includes(requiredFilePattern)) failures.push(`package.json: files must include ${requiredFilePattern}`)
+}
+for (const forbiddenScript of ['prepare', 'tsdown.prepare.config.ts', 'tsconfig.prepare.dts.json', 'tsc -b']) {
+  if (JSON.stringify(packageJson.scripts ?? {}).includes(forbiddenScript)) failures.push(`package.json: obsolete build reference ${forbiddenScript}`)
+}
 for (const field of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies']) {
   for (const [name, spec] of Object.entries(packageJson[field] ?? {})) {
     if (/^(?:file|link|portal|workspace|git\+|https?):/i.test(spec) || spec.startsWith('.') || isAbsolute(spec)) {

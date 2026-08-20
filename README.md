@@ -20,7 +20,6 @@ Normal npm dependencies are resolved from the package registry. A DSH host is a 
 ├── scripts/
 │   ├── extract-patch.mjs         # Config-driven host patch regeneration (see patches/README.md)
 │   ├── patch.sh                  # Idempotent host patch application
-│   ├── prepare.mjs               # Self-contained declaration and runtime prepare build
 │   └── verify-self-contained.mjs # Repository-boundary and skill metadata check
 ├── src/
 │   ├── README.md                 # Growth rules for services and feature modules
@@ -42,13 +41,9 @@ Normal npm dependencies are resolved from the package registry. A DSH host is a 
 ├── package.json                  # Exports, peers, dsh.bundle.patch
 ├── pnpm-lock.yaml                # Reproducible registry dependency graph
 ├── pnpm-workspace.yaml           # Package-manager and optional patch policy
-├── tsconfig.base.json            # Local strict compiler baseline
-├── tsconfig.json                 # Development declaration project
-├── tsconfig.vitest.json          # Source-plane test project
-├── tsconfig.prepare.json         # Runtime bundle resolution settings
-├── tsconfig.prepare.dts.json     # Self-contained prepare declarations
-├── tsdown.config.ts              # Development runtime bundle
-├── tsdown.prepare.config.ts      # Prepare runtime bundle
+├── tsconfig.json                 # Strict no-emit typecheck project
+├── tsconfig.vitest.json          # Source-plane test typecheck project
+├── tsdown.config.ts              # Direct source-to-runtime/declaration build
 └── vitest.config.ts              # Test runner configuration
 ```
 
@@ -104,19 +99,18 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
-pnpm run prepare
 ```
 
-`pnpm install` resolves only the dependencies declared by this package. `verify:self-contained` rejects filesystem dependency specs, compiler paths that leave the repository, external or broken Markdown links, absolute workstation paths, and malformed bundled skill metadata. `typecheck` checks both the declaration project in `tsconfig.json` and the source-plane tests in `tsconfig.vitest.json` against the local strict compiler baseline. `prepare` first removes this repository's generated `lib/`, emits declarations into `lib/types`, and bundles runtime JavaScript from `src`; it reads only files below this repository root.
+`pnpm install` resolves only the dependencies declared by this package. `verify:self-contained` rejects filesystem dependency specs, compiler paths that leave the repository, external or broken Markdown links, absolute workstation paths, and malformed bundled skill metadata. `typecheck` checks both the source project in `tsconfig.json` and the source-plane tests in `tsconfig.vitest.json` against the local strict compiler baseline. `build` compiles the host entries directly from `src/` and emits ready-to-pack runtime JavaScript plus declarations into `lib/`; it does not run an install-time lifecycle build.
 
-The development build and prepare build use separate configurations, but both are fully contained in this repository. `pnpm run build` is the development/CI type-safety gate. `pnpm run prepare` is the consumer-side artifact build for Git and tarball installation.
+The release artifact is built from `src/` before packing. Profile or consumer installation uses the ready-made `lib/` output and does not run `prepare`; `pnpm pack --dry-run --json` verifies the final archive contents.
 
 ## CI
 
 Two GitHub Actions workflows ship with the template:
 
-- `.github/workflows/ci.yml` — every push to `main` and every pull request: install with the frozen lockfile, `verify:self-contained`, typecheck, tests, build, and prepare.
-- `.github/workflows/release.yml` — every push to `main`: builds, packs the tarball (`pnpm pack`), and publishes it to a GitHub Release tagged `v<version>` from `package.json`. Bump `version` to cut a new release; re-pushing the same version refreshes that release's artifact.
+- `.github/workflows/ci.yml` — every push to `main` and every pull request: install with the frozen lockfile, `verify:self-contained`, typecheck, tests, and build.
+- `.github/workflows/release.yml` — every push to `main`: verifies, typechecks, tests, builds, packs the ready-made tarball (`pnpm pack`), and publishes it to a GitHub Release tagged `v<version>` from `package.json`. Bump `version` to cut a new release; re-pushing the same version refreshes that release's artifact.
 
 ## Profile activation
 
@@ -159,15 +153,17 @@ A service provider instead normally default-exports its `Service` subclass. Do n
 
 ## Distribution checks
 
-Before considering Git or npm distribution, run a clean prepare and inspect the final archive:
+Before considering packed or GitHub Release distribution, build and inspect the final archive:
 
 ```sh
-pnpm run prepare
-pnpm pack --dry-run --json
+pnpm run verify:self-contained
+pnpm run typecheck
+pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
-The final package must contain every runtime and declaration file named by `main`, `types`, `exports`, and `files`. The final `pnpm run build` restores the development artifact after pack lifecycle scripts. Keep `private: true` until the package's DSH host peers are available through the selected distribution channel.
+The final package must contain every runtime and declaration file named by `main`, `types`, `exports`, and `files`. Keep `private: true` until the package's DSH host peers are available through the selected distribution channel.
 
 ## Testing guidance
 

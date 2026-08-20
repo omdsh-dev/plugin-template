@@ -13,7 +13,7 @@ type InvariantFailure = (message: string) => never
 /** Installer callback accepted by the host's invariant registry. */
 type InvariantInstaller = (ctx: Context, fail: InvariantFailure) => void | Promise<void>
 
-/** Minimal runtime contract used by the companion without a source checkout. */
+/** Minimal runtime contract used by the companion without a host source checkout. */
 interface InvariantRegistry {
   register(packageName: string, installer: InvariantInstaller): () => void
 }

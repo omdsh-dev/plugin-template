@@ -2,8 +2,9 @@ name: release
 
 # Every push to main builds the package and publishes the packed tarball to
 # a GitHub Release tagged v<version> (the version from package.json). The
-# artifact ships version-free as pkg.tgz. Bump the version to cut a new
-# release; re-pushing the same version refreshes that release's artifact.
+# artifact ships version-free as pkg.tgz and is ready to install without a
+# lifecycle build. Bump the version to cut a new release; re-pushing the same
+# version refreshes that release's artifact.
 on:
   push:
     branches: [main]
@@ -18,13 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run verify:self-contained
+      - run: pnpm run typecheck
+      - run: pnpm test
       - run: pnpm run build
-      - run: pnpm run prepare
       - name: Pack the artifact
         run: |
           pnpm pack --pack-destination dist

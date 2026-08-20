@@ -20,7 +20,6 @@
 ├── scripts/
 │   ├── extract-patch.mjs         # 配置驱动的 host patch 再生成(见 patches/README.md)
 │   ├── patch.sh                  # 幂等的 host patch 应用
-│   ├── prepare.mjs               # 自包含声明与运行时 prepare 构建
 │   └── verify-self-contained.mjs # 仓库边界与 skill 元数据检查
 ├── src/
 │   ├── README.md                 # 服务与功能模块的增长规则
@@ -42,13 +41,9 @@
 ├── package.json                  # 导出、peers、dsh.bundle.patch
 ├── pnpm-lock.yaml                # 可复现的 registry 依赖图
 ├── pnpm-workspace.yaml           # 包管理器与可选补丁策略
-├── tsconfig.base.json            # 本地严格编译器基线
-├── tsconfig.json                 # 开发声明工程
-├── tsconfig.vitest.json          # 源码平面测试工程
-├── tsconfig.prepare.json         # 运行时 bundle 解析设置
-├── tsconfig.prepare.dts.json     # 自包含 prepare 声明
-├── tsdown.config.ts              # 开发运行时 bundle
-├── tsdown.prepare.config.ts      # prepare 运行时 bundle
+├── tsconfig.json                 # 严格 no-emit 类型检查工程
+├── tsconfig.vitest.json          # 源码平面测试类型检查工程
+├── tsdown.config.ts              # 从源码直接构建运行时与声明
 └── vitest.config.ts              # 测试运行器配置
 ```
 
@@ -104,19 +99,18 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
-pnpm run prepare
 ```
 
-`pnpm install` 只解析本包声明的依赖。`verify:self-contained` 拒绝文件系统依赖 spec、离开仓库的编译器路径、外部或损坏的 Markdown 链接、绝对工作站路径和格式错误的 bundle skill 元数据。`typecheck` 同时检查 `tsconfig.json` 的声明工程与 `tsconfig.vitest.json` 的源码平面测试,对照本地严格编译器基线。`prepare` 先移除本仓库生成的 `lib/`,向 `lib/types` 输出声明,再从 `src` 打包运行时 JavaScript;它只读取本仓库根目录以下的文件。
+`pnpm install` 只解析本包声明的依赖。`verify:self-contained` 拒绝文件系统依赖 spec、离开仓库的编译器路径、外部或损坏的 Markdown 链接、绝对工作站路径和格式错误的 bundle skill 元数据。`typecheck` 同时检查 `tsconfig.json` 的源码工程与 `tsconfig.vitest.json` 的源码平面测试,对照本地严格编译器基线。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。
 
-开发构建与 prepare 构建使用独立配置,但都完全包含在本仓库内。`pnpm run build` 是开发/CI 类型安全门禁。`pnpm run prepare` 是 Git 与 tarball 安装的消费者侧产物构建。
+release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费现成的 `lib/` 输出，不运行 `prepare`；使用 `pnpm pack --dry-run --json` 检查最终归档内容。
 
 ## CI
 
 模板自带两个 GitHub Actions 工作流:
 
-- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、`verify:self-contained`、typecheck、测试、构建与 prepare。
-- `.github/workflows/release.yml` — 每次推送到 `main`:构建并 `pnpm pack` 打包 tarball,发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
+- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、`verify:self-contained`、typecheck、测试与构建。
+- `.github/workflows/release.yml` — 每次推送到 `main`:执行验证、类型检查、测试、构建，打包现成 tarball(`pnpm pack`)，发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
 
 ## Profile 激活
 
@@ -159,15 +153,17 @@ export function apply(ctx: Context, config: Config): void { /* effects */ }
 
 ## 分发检查
 
-在考虑 Git 或 npm 分发前,运行一次干净的 prepare 并检查最终归档:
+在考虑 packed 或 GitHub Release 分发前，构建并检查最终归档:
 
 ```sh
-pnpm run prepare
-pnpm pack --dry-run --json
+pnpm run verify:self-contained
+pnpm run typecheck
+pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
-最终包必须包含 `main`、`types`、`exports` 与 `files` 命名的每个运行时与声明文件。最后的 `pnpm run build` 在 pack 生命周期脚本之后恢复开发产物。在包的 DSH 宿主 peers 通过所选分发通道可用之前,保持 `private: true`。
+最终包必须包含 `main`、`types`、`exports` 与 `files` 命名的每个运行时与声明文件。在包的 DSH 宿主 peers 通过所选分发通道可用之前,保持 `private: true`。
 
 ## 测试指引
 
