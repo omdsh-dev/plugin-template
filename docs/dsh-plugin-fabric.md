@@ -4,11 +4,11 @@ Shared reference for the Fabric plugin skills (`dsh-plugin-fabric-*`). The Fabri
 
 ## The three packages
 
-- `cordis-fabric` — the pure transformation service (loader hooks, bridge, runtime, `bootstrapFabric`, `checkRequiredPatches`, `testkit`). A library: its profile row must never be enabled (no plugin `apply`; an enabled row fails every boot).
-- `cordis-fabric-api` — the compat facade (`/compat`: `FabricCompatService`, `registerPatch`, `serveBundle`) for consumers that want a thin patch-registration surface.
+- `cordis-fabric` — the pure transformation service (loader hooks, bridge, runtime, `bootstrapFabric`, `checkRequiredPatches`, `testing/testkit`). A library: its profile row must never be enabled (no plugin `apply`; an enabled row fails every boot).
+- `cordis-fabric-api` — the compat facade. Fabric `0.1.0` exports `FabricCompatService` as a named export from the package root; the public compat subpaths are `compat/service`, `compat/instrumentation`, and `compat/types`. `FabricCall` and `FabricTarget` come from `cordis-fabric`.
 - `cordis-fabric-dsh` — the Host plugin: DSH-facing facades plus the post-boot gate. Its row is the one installs enable.
 
-The trio installs through the official plugin channel as one bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`); the bundle also ships the `fabric-dsh` launcher binary. Nothing is patched in DSH host source.
+The trio installs through the official plugin channel as one ready-made release bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`); the bundle also ships the compiled `fabric-dsh` launcher binary. Nothing is patched in DSH host source.
 
 ## Launch forms
 
@@ -50,6 +50,7 @@ Rules that cost real debugging when violated:
 
 - `filePaths` must cover the launch form that actually loads: a source launch (tsx + tsconfig paths) loads `src/...`, a built deployment loads `lib/...`. A mismatch means the patch bound nothing.
 - Load-time transformation happens at module import on the NODE host; browser bundles are rewritten by `serveBundle` at request/build time instead. A patch whose target only exists in the browser cannot be `required` — the server-side binding check would never see it.
+- Fabric `0.1.0` browser serving resolves the target through `ctx.baseUrl`; guard the serving seam on both the webserver capability and `ctx.baseUrl` before calling `serveBundle`.
 - Handlers are trusted code bound at runtime (`ctx.fabric.register` or the compat `registerPatch`); descriptors are configuration metadata — never deserialize executable handlers from YAML or model input.
 - The bridge is a `globalThis` singleton; transformed code publishes to it and the runtime dispatches. With no handler registered the original body runs untouched.
 
@@ -60,12 +61,13 @@ Rules that cost real debugging when violated:
 
 ## Install flow
 
-1. One-time machine setup: the bundle's `install.sh` (harness deps + build, profile pnpm-settings seed, `dsh plugin --profile web add github:omdsh-dev/fabric`, and the idempotent `cordis-fabric-dsh` row enable) — or do those steps manually.
-2. Git-installed specs pin a commit in the profile's lockfile; after a push, run `pnpm update` in the profile directory so the profile resolves the new commits.
+1. One-time machine setup: install the ready-made Fabric bundle through the official channel:
+   `dsh plugin --profile web add https://github.com/omdsh-dev/fabric/releases/latest/download/pkg.tgz`, then enable the idempotent `cordis-fabric-dsh` row as documented by the profile.
+2. The release artifact carries the prebuilt Fabric trio, so profile installation does not resolve nested Git/URL packages, run `prepare`, or require `blockExoticSubdeps: false`.
 3. Launch through the profile's `.bin/fabric-dsh`; plain `dsh` keeps the dependent rows unloaded.
 
 ## Testing surface
 
-- `cordis-fabric/testkit` (`runPatchFixture`) runs one transformed target with a handler in a child process and reports bindings — assert the binding exists and the rewritten call result.
+- `cordis-fabric/testing/testkit` (`runPatchFixture`) runs one transformed target with a handler in a child process and reports bindings — assert the binding exists and the rewritten call result.
 - Composition tests: boot a real profile tree (child process, `node --import tsx/esm --import <preload>`) and assert the three-state matrix — plain `dsh` skips the row, `fabric-dsh` loads it with the binding recorded, plain `dsh` with an explicit enable fails.
 - Keep registrations scoped to the plugin fiber and test disposal; the load-time hooks cannot be unregistered within a process, so each case runs in a fresh child.

@@ -16,10 +16,10 @@ A Fabric patch is a declarative stub (id/target/operation) plus a trusted runtim
 ## Know the three packages
 
 - `cordis-fabric` — the pure transformation service. A library: its profile row must never be enabled (no plugin `apply`; an enabled row fails every boot). Its row is only the canonical carrier for central `config.fabric.patches` descriptors.
-- `cordis-fabric-api` — the compat facade: `/compat` exposes `FabricCompatService`, `registerPatch`, and `serveBundle` for consumers that want a thin registration surface.
-- `cordis-fabric-dsh` — the Host plugin with the post-boot gate; its row is the one installs enable.
+- `cordis-fabric-api` — the compat facade. In Fabric `0.1.0`, `FabricCompatService` is a named root export; public compat subpaths are `compat/service`, `compat/instrumentation`, and `compat/types`. `FabricCall` and `FabricTarget` come from `cordis-fabric`.
+- `cordis-fabric-dsh` — the Host plugin with the post-boot gate; its row is the one that installs enable.
 
-The trio arrives as one bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`) through the official plugin channel; the bundle also ships the `fabric-dsh` launcher. Nothing is patched in DSH host source.
+The trio arrives as one ready-made release bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`) through the official plugin channel; the bundle also ships the compiled `fabric-dsh` launcher. Nothing is patched in DSH host source.
 
 ## Model the two launch forms
 
@@ -61,4 +61,4 @@ Consequences, all enforced at boot:
 
 ## Install and update
 
-One-time: the bundle's `install.sh`, or manually — `dsh plugin --profile web add github:omdsh-dev/fabric` plus the idempotent `cordis-fabric-dsh` row enable. Git-installed specs pin a commit in the profile lockfile; after a push, run `pnpm update` in the profile directory before expecting new behavior.
+One-time: install the ready-made bundle — `dsh plugin --profile web add https://github.com/omdsh-dev/fabric/releases/latest/download/pkg.tgz` — plus the idempotent `cordis-fabric-dsh` row enable. The release artifact avoids nested Git/URL resolution, `prepare`, and `blockExoticSubdeps: false`; launch through the profile's `fabric-dsh` binary.
