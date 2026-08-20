@@ -17,7 +17,7 @@ Use `cordis-fabric/testing/testkit` for one transformed target plus handler, ass
 
 ## Run the three-state boot matrix
 
-Compose a real profile tree (isolated `DSH_HOME`, bundle layers in `dsh.profile.bundles` order, the trio installed in the profile) and assert all three states:
+Compose a real profile tree (isolated `DSH_HOME`, bundle layers in `dsh.profile.bundles` order, the Fabric provider bundle installed in the profile, and the consumer's required peers resolvable) and assert all three states:
 
 1. **Plain `dsh` skips the row** — the app boots, and the Fabric-required plugin is absent from the mounted roster and the served client manifest. This is the normal non-fabric behavior, not an error.
 2. **`fabric-dsh` loads it** — the boot succeeds, the plugin appears in the client manifest, the required patch recorded a binding (the post-boot check fails the boot when it did not), and the boot output carries the preload's `fabric-dsh:` launch marker followed by the hook summary (each patch with its hooked target file and node count, or "not hooked"); the marker's absence means the hooks never installed.
@@ -32,7 +32,8 @@ Boot the CLI from the official checkout with the profile's `DSH_HOME`; clear a s
 
 ## Keep installs honest
 
-- Install the ready-made bundle through the official channel: `dsh plugin --profile web add https://github.com/omdsh-dev/fabric/releases/latest/download/pkg.tgz`, then enable the `cordis-fabric-dsh` row; the release artifact avoids nested Git/URL resolution and install-time `prepare`.
+- In a temporary plugin workspace fixture, omit `cordis-fabric` or `cordis-fabric-api` from the available provider set and prove the strict install fails; restore the provider before build and tests.
+- Install the ready-made Fabric provider bundle through the official channel before the consumer plugin: `dsh plugin --profile web add https://github.com/omdsh-dev/fabric/releases/latest/download/pkg.tgz`, then enable the `cordis-fabric-dsh` row. The release artifact avoids nested Git/URL resolution and install-time `prepare`; the provider bundle may carry the trio, but the consumer plugin must not duplicate it. A consuming profile's missing-peer rejection is only proven when that profile's own strict peer setting is independently verified.
 
 ## Record the evidence
 
