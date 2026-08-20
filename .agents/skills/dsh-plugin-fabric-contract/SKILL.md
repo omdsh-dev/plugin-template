@@ -19,7 +19,7 @@ A Fabric patch is a declarative stub (id/target/operation) plus a trusted runtim
 - `cordis-fabric-api` — the compat facade. In Fabric `0.1.0`, `FabricCompatService` is a named root export; public compat subpaths are `compat/service`, `compat/instrumentation`, and `compat/types`. `FabricCall` and `FabricTarget` come from `cordis-fabric`.
 - `cordis-fabric-dsh` — the Host plugin with the post-boot gate; its row is the one that installs enable.
 
-The trio arrives as one ready-made release bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`) through the official plugin channel; the bundle also ships the compiled `fabric-dsh` launcher. Nothing is patched in DSH host source.
+The trio arrives as one ready-made release bundle (`cordis-fabric-bundle`, repo `omdsh-dev/fabric`) through the official plugin channel; the bundle also ships the compiled `fabric-dsh` launcher. A plugin that consumes Fabric declares `cordis-fabric` and `cordis-fabric-api` as required `peerDependencies`, mirrors them in `devDependencies` from a reachable registry or pinned release source, and does not place them in runtime `dependencies` or `bundledDependencies`. The consumer repository enables `strictPeerDependencies: true` beside `autoInstallPeers: false` for local checks, but that workspace setting is not transferred to a consuming DSH profile; install the provider bundle in the profile first. Both peers are required when the plugin imports `FabricCompatService` at runtime: `cordis-fabric-api` itself consumes the `cordis-fabric` runtime, so type-only use of Fabric does not make the API peer optional. Mark a peer optional only when the plugin can load and operate without that package.
 
 ## Model the two launch forms
 

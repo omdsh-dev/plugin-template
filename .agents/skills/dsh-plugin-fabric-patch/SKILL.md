@@ -7,6 +7,10 @@ description: Use when writing the Fabric patch stub and its runtime handler for 
 
 This skill owns the patch-writing work: the declarative stub and the trusted runtime handler. Read the project-root `docs/dsh-plugin-fabric.md` and `docs/dsh-plugin-contracts.md` first, and apply `dsh-plugin-fabric-contract` to decide the dependency before writing code.
 
+## Keep the consumer artifact peer-only
+
+A Fabric-dependent plugin declares `cordis-fabric` and `cordis-fabric-api` as required peers and mirrors them in `devDependencies` for local build and tests. Set `strictPeerDependencies: true` alongside `autoInstallPeers: false` in the plugin repository's `pnpm-workspace.yaml`. Do not copy the Fabric trio into the consumer's `dependencies` or `bundledDependencies`; the separate Fabric release bundle owns those packages and must be installed in the target profile first. The local workspace setting does not configure the profile's pnpm behavior.
+
 ## Place the stub on the declaring row
 
 Put the stub under the row's own `config.fabric.patches` and ship the row `disabled: true` (the `fabric-dsh` launcher enables Fabric-required rows at launch). Keep the `cordis-fabric` row disabled always — it is a library carrier, not a plugin.
