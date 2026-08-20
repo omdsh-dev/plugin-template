@@ -33,9 +33,10 @@ For every imported DSH service or package, record:
 | Package/API | Exact current package and export path |
 | Availability | Required or optional |
 | Cordis access | `inject` + `ctx.<service>`, or optional `ctx.get(name)`/scoped `ctx.inject` |
-| Manifest | Peer dependency and development source |
+| Manifest | Runtime dependency, required or optional peer, or legitimate bundled provider; development source |
 | TypeScript | Local compiler configuration and installed package declarations |
 | Composition | Existing base row or inserted bundle row |
+| Provider install | Package or profile layer that must provide each required peer before activation |
 | Test support | Real provider, focused fake, or composition fixture |
 
 Required services belong in `inject`. Use `ctx.get(name)` for optional service reads; never use undeclared `ctx.<name>` access. Add only dependencies with a current production use.

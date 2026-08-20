@@ -28,7 +28,8 @@ Establish these facts before editing. Ask one concise batch of questions when th
 - npm package name and stable Cordis plugin id;
 - intended profile or consuming application;
 - whether the package is new or existing;
-- intended distribution channel: local checkout, Git, npm, or not yet selected.
+- intended distribution channel: local checkout, Git, npm, or not yet selected;
+- required host peers and their provider installation order;
 
 Do not invent a package scope, target path, credential source, public default, or publishing destination.
 
@@ -69,6 +70,7 @@ Stages may be performed in one coding pass, but their exit conditions do not dis
 
 ## Hard stops
 
+- Every runtime-provided host package is declared as a required or optional peer and mirrored in `devDependencies` when the repository builds or tests against it. `pnpm-workspace.yaml` keeps `autoInstallPeers: false` and enables `strictPeerDependencies: true` for local checks; that setting is not transferred to a consuming profile, which must provide required peers independently.
 - A function plugin named-exports `name`, `inject`, `Config`, and `apply` and has no default export. A service plugin default-exports its service class. Never mix the two forms.
 - `cordis.patch.yml` composes packages and configuration; it does not patch DSH host source, TypeScript projects, catalogs, or launch code.
 - Every source, compiler, documentation, and skill input must resolve below the repository root. Add a registry dependency or local contract file instead of reading another checkout.

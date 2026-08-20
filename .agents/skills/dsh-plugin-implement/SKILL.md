@@ -35,7 +35,7 @@ For a service plugin, default-export the `Service` subclass and use the class's 
 
 List every required service in `inject` before reading `ctx.<service>`. Read an optional service through `ctx.get(name)`; use scoped `ctx.inject` when behavior must attach and detach as that optional service appears. Extend `cordis` through declaration merging only when the package actually defines a context service or typed event.
 
-Use package names across package boundaries and `.ts` extensions for local relative imports. Keep host-provided Cordis APIs as peers, external implementation libraries in `dependencies`, and development resolution through this repository's declared dependencies. Add no dependency, path alias, or project reference without a production import; never add a path that leaves the repository.
+Use package names across package boundaries and `.ts` extensions for local relative imports. Keep host-provided Cordis APIs as peers, mirror every required peer in `devDependencies` with a reachable registry or pinned release source, and enable `strictPeerDependencies: true` beside `autoInstallPeers: false` in the repository's `pnpm-workspace.yaml`. That local setting does not transfer to a consumer profile: do not bundle a host peer into the plugin, and document the provider package and installation order instead. External implementation libraries belong in `dependencies`. Add no dependency, path alias, or project reference without a production import; never add a path that leaves the repository.
 
 ## Validate configuration and failures
 

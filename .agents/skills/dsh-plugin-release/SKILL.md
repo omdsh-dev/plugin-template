@@ -54,13 +54,13 @@ Run:
 pnpm pack --dry-run --json
 ```
 
-`pnpm pack` calculates the archive from the already-built `lib/` output; inspect the complete file list. Require the runtime bundle, declarations and maps promised by exports, `cordis.patch.yml` for bundles, and any deliberately shipped assets. Reject credentials, `.env`, `.git`, tests, temporary stores, local caches, unexpected generated chunks, unexpected `node_modules` content, or files outside the documented package contract; allow only explicitly declared bundled dependencies when the distribution contract requires them.
+`pnpm pack` calculates the archive from the already-built `lib/` output; inspect the complete file list. Require the runtime bundle, declarations and maps promised by exports, `cordis.patch.yml` for bundles, and any deliberately shipped assets. Reject credentials, `.env`, `.git`, tests, temporary stores, local caches, unexpected generated chunks, unexpected `node_modules` content, or files outside the documented package contract. Required host peers must be absent from the archive; only a package that owns and provides a runtime may use `bundledDependencies`. The repository's `strictPeerDependencies: true` setting validates the local workspace, not the consumer profile or the packed artifact.
 
 When practical, create the tarball in a temporary directory, install it into a fresh minimal consumer, and import every public entry. Use the tarball rather than the source checkout so missing `files`, exports, and runtime dependencies fail.
 
 ## Verify release installation
 
-Install the packed `pkg.tgz` (or the published GitHub Release URL) into an isolated profile. Confirm the package manager adds the bundle, the effective rows include the intended plugin row, and every manifest-declared runtime and type entry resolves from the archive. Load and follow `dsh-plugin-compose` at `.agents/skills/dsh-plugin-compose/SKILL.md` for isolated profile installation and real-entry activation. A successful pack command does not prove profile resolution or activation.
+Install the packed `pkg.tgz` (or the published GitHub Release URL) into an isolated profile after installing every required provider peer. Confirm the package manager adds the bundle, the effective rows include the intended plugin row, and every manifest-declared runtime and type entry resolves from the archive. If the profile does not enable strict peer checking, record missing-peer rejection as unverified rather than claiming the package manager hard-failed. Load and follow `dsh-plugin-compose` at `.agents/skills/dsh-plugin-compose/SKILL.md` for isolated profile installation and real-entry activation. A successful pack command does not prove profile resolution or activation.
 
 ## Documentation and repository state
 

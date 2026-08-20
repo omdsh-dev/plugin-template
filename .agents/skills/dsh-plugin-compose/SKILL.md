@@ -51,7 +51,7 @@ Select the base profile that supplies the required services. A custom profile in
 
 Confirm `pnpm` is on `PATH`; `dsh plugin` forwards package-manager operations to it and fails before installation when it is unavailable.
 
-Install a packed artifact, registry version, or user-approved Git spec through DSH's profile package manager. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete:
+Install a packed artifact, registry version, or user-approved Git spec through DSH's profile package manager. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete. Before installation, enumerate every required peer in the package manifest and verify that the target profile already provides each one; install provider bundles or packages first rather than copying host peers into the consumer. The plugin repository's `strictPeerDependencies` setting applies only to its own workspace and is not transferred to the consuming profile. Do not claim that `dsh plugin add` rejects a missing peer unless the profile's own strict setting has been independently verified.
 
 ```sh
 pnpm pack

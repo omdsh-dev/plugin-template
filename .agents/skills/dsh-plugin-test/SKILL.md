@@ -75,6 +75,8 @@ pnpm run build
 
 After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Use `pnpm pack --dry-run --json` to verify the ready-made release artifact contains the runtime entries and declarations; packaging is an artifact check and does not replace the full development typecheck.
 
+For every required peer, test the package's own workspace with `strictPeerDependencies: true`: a consumer fixture without the provider must fail installation, and the same fixture with the provider must install and import the package. Treat a DSH profile as a separate consumer; its rejection behavior is unproven unless that profile's pnpm strict setting is independently configured and observed.
+
 Use `pnpm pack --dry-run --json` to inspect files only in the release stage or when exports/files changed. A packed-consumer or Git-install smoke belongs to `dsh-plugin-release` at `.agents/skills/dsh-plugin-release/SKILL.md`.
 
 ## Clear the harness tsconfig pin

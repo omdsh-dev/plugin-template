@@ -60,8 +60,11 @@ For every planned host API import, update these together:
 1. `peerDependencies` for runtime-provided Cordis/host APIs;
 2. a reachable registry development dependency when the package must typecheck or test against it;
 3. local TypeScript settings and package declarations;
-4. `tsconfig.vitest.json` and the Vitest resolver when test aliases are needed;
-5. `inject` and `cordis.patch.yml` when the service must be composed.
+4. `pnpm-workspace.yaml`: keep `autoInstallPeers: false` and set `strictPeerDependencies: true` so local install and checks fail on missing or invalid required peers;
+5. `tsconfig.vitest.json` and the Vitest resolver when test aliases are needed;
+6. `inject` and `cordis.patch.yml` when the service must be composed.
+
+`strictPeerDependencies` belongs to the repository workspace and is not copied into a packed plugin or a consuming DSH profile. Composition must therefore install or otherwise provide every required peer in the target profile before activation. Do not move a host peer into `dependencies` or `bundledDependencies` just to make a consumer install appear self-contained; only a package that owns and provides a runtime may bundle it.
 
 Use `dependencies` for libraries bundled or required by the plugin at runtime. Keep optional peers explicit. This template forbids local `link:` and `file:` dependencies and forbids project references that leave the repository. Every fresh clone must resolve its build graph from its own manifest and lockfile.
 
