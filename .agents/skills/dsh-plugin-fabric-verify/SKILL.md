@@ -9,7 +9,7 @@ This skill owns the Fabric-specific evidence: bindings, the boot matrix, and the
 
 ## Prove the transform in a fixture process
 
-Use `cordis-fabric/testkit` for one transformed target plus handler, asserted on bindings and results:
+Use `cordis-fabric/testing/testkit` for one transformed target plus handler, asserted on bindings and results:
 
 - the target fixture lives under a `node_modules`-shaped path so package identity resolution matches production;
 - each case runs in a fresh child process — the synchronous loader hooks cannot be unregistered within a process;
@@ -32,8 +32,7 @@ Boot the CLI from the official checkout with the profile's `DSH_HOME`; clear a s
 
 ## Keep installs honest
 
-- Git-installed specs pin a commit in the profile lockfile: after pushing the plugin or the bundle, run `pnpm update` in the profile directory, then re-run the matrix — stale pins are the most common reason a gate "does not fire".
-- The one-time setup is the bundle's `install.sh` (or `dsh plugin --profile web add github:omdsh-dev/fabric` plus enabling the `cordis-fabric-dsh` row); the Fabric-required plugin rows stay disabled in the patch layer.
+- Install the ready-made bundle through the official channel: `dsh plugin --profile web add https://github.com/omdsh-dev/fabric/releases/latest/download/pkg.tgz`, then enable the `cordis-fabric-dsh` row; the release artifact avoids nested Git/URL resolution and install-time `prepare`.
 
 ## Record the evidence
 

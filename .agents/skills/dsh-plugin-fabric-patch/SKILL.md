@@ -49,7 +49,8 @@ Patch id is stable and namespaced (`owner/feature`); keep the same id in the stu
 Handlers are trusted code bound when the plugin mounts. Through the compat facade:
 
 ```ts
-import FabricCompatService from 'cordis-fabric-api/compat'
+import { FabricCompatService } from 'cordis-fabric-api'
+import type { FabricCall } from 'cordis-fabric'
 // in apply:
 await ctx.plugin(FabricCompatService)
 const compat = ctx.get('fabricCompat')
@@ -65,7 +66,7 @@ Or with the pure service when mounted: `ctx.fabric.register({ id, target, operat
 
 ## Serve browser rewrites separately
 
-Load-time hooks only see Node imports. For a browser bundle, serve a rewritten copy:
+Load-time hooks only see Node imports. For a browser bundle, serve a rewritten copy. Fabric `0.1.0` resolves the target through `ctx.baseUrl`, so guard the serving seam on both the webserver capability and `ctx.baseUrl` before calling `serveBundle`:
 
 ```ts
 compat.serveBundle({
