@@ -9,15 +9,14 @@ This skill coordinates the complete standalone-plugin workflow. It is guidance, 
 
 ## Scope
 
-Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package-owned invariant companion and an optional profile bundle patch. The repository-local contract reference below is the source for the conventions this template can verify.
+Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package-owned invariant companion and an optional profile bundle patch. A package may be host-only, client-only, or split across host and browser faces; record the actual owners rather than imposing one layout. The repository-local contract reference below is the source for the conventions this template can verify.
 
 Read the applicable project-root files before implementation:
 
 - `AGENTS.md`
 - `README.md`
-- `src/README.md`
-- `tests/README.md`
 - `docs/dsh-plugin-contracts.md`
+- the source, configuration, contract, and focused test owners named by the current package layout
 
 ## Required inputs
 
@@ -60,7 +59,7 @@ Do not create a transient planning file merely to move between skills. Create a 
 ## Stage sequence
 
 1. Load `dsh-plugin-plan` from `.agents/skills/dsh-plugin-plan/SKILL.md`. Leave planning only after the plugin form, roles, dependencies, configuration, invariant decision, composition, test tiers, and distribution assumptions are explicit.
-2. For a new repository, load `dsh-plugin-scaffold` from `.agents/skills/dsh-plugin-scaffold/SKILL.md`. Leave scaffolding only after all template placeholders are replaced and the unchanged skeleton passes install, self-contained boundary verification, typecheck, tests, and build. Skip file creation for an existing plugin, but still audit it against the scaffold exit conditions.
+2. For a new repository, load `dsh-plugin-scaffold` from `.agents/skills/dsh-plugin-scaffold/SKILL.md`. Leave scaffolding only after identity, files, dependency metadata, and the package's actual boundary, typecheck, test, build, and pack checks pass. Skip file creation for an existing plugin, but still audit it against the scaffold exit conditions.
 3. Load `dsh-plugin-implement` from `.agents/skills/dsh-plugin-implement/SKILL.md`. Implement only the planned behavior, update the package contract and invariant companion, and keep all registrations owned by the plugin fiber.
 4. Load `dsh-plugin-compose` from `.agents/skills/dsh-plugin-compose/SKILL.md` when the package contributes a profile bundle or must be proven in an assembled DSH profile. Verify the effective rows rather than assuming the patch applied.
 5. Load `dsh-plugin-test` from `.agents/skills/dsh-plugin-test/SKILL.md`. Run the smallest evidence that covers the behavior; product-visible plugins require a real Loader/profile composition test in addition to hand-mounted unit tests.
@@ -70,7 +69,7 @@ Stages may be performed in one coding pass, but their exit conditions do not dis
 
 ## Hard stops
 
-- Every runtime-provided host package is declared as a required or optional peer and mirrored in `devDependencies` when the repository builds or tests against it. `pnpm-workspace.yaml` keeps `autoInstallPeers: false` and enables `strictPeerDependencies: true` for local checks; that setting is not transferred to a consuming profile, which must provide required peers independently.
+- Every runtime-provided host package is declared as a required or optional peer when the consumer supplies it, and the repository has a declared development source when it builds or tests against it. Do not bundle a host runtime into the plugin; document how the consumer provides required peers and verify provider behavior at the applicable workspace or profile.
 - A function plugin named-exports `name`, `inject`, `Config`, and `apply` and has no default export. A service plugin default-exports its service class. Never mix the two forms.
 - `cordis.patch.yml` composes packages and configuration; it does not patch DSH host source, TypeScript projects, catalogs, or launch code.
 - Every source, compiler, documentation, and skill input must resolve below the repository root. Add a registry dependency or local contract file instead of reading another checkout.

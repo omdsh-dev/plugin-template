@@ -33,7 +33,7 @@ For every imported DSH service or package, record:
 | Package/API | Exact current package and export path |
 | Availability | Required or optional |
 | Cordis access | `inject` + `ctx.<service>`, or optional `ctx.get(name)`/scoped `ctx.inject` |
-| Manifest | Runtime dependency, required or optional peer, or legitimate bundled provider; development source |
+| Manifest | Runtime source (dependency, required or optional peer, or legitimate bundled provider); development source |
 | TypeScript | Local compiler configuration and installed package declarations |
 | Composition | Existing base row or inserted bundle row |
 | Provider install | Package or profile layer that must provide each required peer before activation |
@@ -49,7 +49,7 @@ Plan fail-loud behavior for self-contained misconfiguration at plugin load, and 
 
 ## Choose the repository structure
 
-Keep the baseline boundaries `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `tests/harness.ts`, and `tests/plugin.spec.ts` focused. Record whether complexity justifies a capability-named `src/<feature>/` directory, additional shared harness support, visible fixtures under `tests/snapshots/`, or dependency or DSH-host patches under `patches/`. Do not pre-create directories copied from another plugin's product domains.
+Keep the current package boundaries focused instead of assuming a fixed skeleton. Record the files and directories that own Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and patches. For a larger plugin, record whether complexity justifies capability-named modules, additional shared harness support, visible fixtures under `tests/snapshots/`, or dependency or DSH-host patches under `patches/`. Do not pre-create directories copied from another plugin's product domains.
 
 ## Define ownership and lifecycle
 

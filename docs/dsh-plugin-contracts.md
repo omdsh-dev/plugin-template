@@ -16,11 +16,9 @@ Required Cordis services belong in `inject`. Optional services are read through 
 
 ## Scalable repository structure
 
-The baseline source boundary separates `src/index.ts`, `src/config.ts`, `src/runtime.ts`, and `src/invariant.ts`. For a larger plugin, keep those responsibilities focused and group cohesive behavior under capability-named directories such as `src/<feature>/`. Add `src/services/` only when the package owns actual Cordis services.
+The package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and optional patch files in explicit owners appropriate to the package; do not force a fixed directory layout onto every plugin.
 
-The baseline test boundary includes `tests/plugin.spec.ts` and the shared real-Cordis mount in `tests/harness.ts`. Add feature-specific `tests/<feature>.spec.ts` files for focused behavior and stable visible-output fixtures under `tests/snapshots/`. Keep snapshot inventory and refresh rules explicit.
-
-`patches/` is an optional project-root directory for two kinds of corrections: exact-version pnpm dependency patches (declared in `pnpm-workspace.yaml`) and DSH host patches (self-contained diffs against a pinned host snapshot, applied with `git apply`, never part of the published package). A host patch carries only what the official plugin registration system cannot provide — actual host code (launcher wiring, build seams, catalog entries, seam tests), never documentation and never anything the official channels handle (bundle roster and dependencies, workspace integration, generation, install-side artifacts). `scripts/extract-patch.mjs` regenerates the patch and `scripts/patch.sh` applies it; both read `patches/host-patch.config.json` (schema in `patches/README.md`). It must remain empty apart from its local README until a real patch exists. Turtle UI's `src/chat/`, `src/components/`, and `src/extension/` are product feature names, not mandatory template directories.
+The sample skeleton separates `src/index.ts`, `src/config.ts`, `src/runtime.ts`, and `src/invariant.ts`, with `tests/plugin.spec.ts` and `tests/harness.ts`. Larger packages may replace or extend those owners with capability-named modules, focused test directories, and a package-specific snapshot owner when the planned behavior warrants it. `patches/` remains optional and carries only documented dependency or DSH-host corrections. A host change that cannot be provided through official plugin registration must use that controlled host-patch process and remain outside the published package. `cordis.patch.yml` is not a host source patch.
 
 ## Lifecycle ownership
 
@@ -43,15 +41,11 @@ The minimum package evidence includes a real Loader export-shape test, schema/de
 The development and release build is:
 
 ```sh
+pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
-The release build produces a ready-made artifact; `pnpm pack --dry-run --json`
-inspects the final file list. It emits declarations and runtime JavaScript from
-`src/` using only this repository's installed dependencies. Profile/plugin
-installation consumes that packed artifact and does not run an install-time
-`prepare` hook. A package is ready for packed or GitHub Release distribution
-only when every manifest-declared runtime and type entry exists after the
-build.
+The template's `verify-self-contained` gate currently enforces the sample layout and manifest faces. If a plugin deliberately replaces those owners or artifact faces, update that gate and this documentation together. The release build produces a ready-made artifact; `pnpm pack --dry-run --json` inspects the complete file list. It emits every runtime and declaration file promised by `main`, `types`, `exports`, and `files` using only this repository's installed dependencies. Profile/plugin installation consumes that packed artifact and does not run an install-time `prepare` hook. A package is ready for packed or GitHub Release distribution only when every manifest-declared runtime and type entry exists after the build.

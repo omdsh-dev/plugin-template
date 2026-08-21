@@ -9,9 +9,9 @@ This skill applies the implementation rules shared by official DSH plugins. It i
 
 ## Read current owners
 
-Read the target project-root files `AGENTS.md`, `README.md`, `src/README.md`, and `docs/dsh-plugin-contracts.md`. Inspect only declarations installed below the repository root for every imported API and record the exact host-facing service contract in the package README before changing service relationships or lifecycle code. Stop when a required contract is absent; do not read another checkout.
+Read the target project-root files `AGENTS.md`, `README.md`, and `docs/dsh-plugin-contracts.md`, plus the source, configuration, contract, and focused test owners named by the current package layout. Inspect only declarations installed below the repository root for every imported API and record the exact host-facing service contract in the package README before changing service relationships or lifecycle code. Stop when a required contract is absent; do not read another checkout.
 
-Keep `src/index.ts` as the Loader boundary, configuration in `src/config.ts`, and fakeable host/process boundaries plus activation in `src/runtime.ts`. Move cohesive behavior to capability-named `src/<feature>/` directories only when the implementation warrants the split.
+Keep `src/index.ts` as the Loader boundary and keep service, composition, configuration, runtime, and other capability responsibilities in their actual focused owners. Move cohesive behavior to capability-named modules only when the implementation warrants the split.
 
 For tool plugins, define the tool's render intent, locations, input schema, and visible output in the package README and tests. Do not rely on a workspace-only cookbook or SDK index; the package must contain the contract it needs.
 
@@ -35,7 +35,7 @@ For a service plugin, default-export the `Service` subclass and use the class's 
 
 List every required service in `inject` before reading `ctx.<service>`. Read an optional service through `ctx.get(name)`; use scoped `ctx.inject` when behavior must attach and detach as that optional service appears. Extend `cordis` through declaration merging only when the package actually defines a context service or typed event.
 
-Use package names across package boundaries and `.ts` extensions for local relative imports. Keep host-provided Cordis APIs as peers, mirror every required peer in `devDependencies` with a reachable registry or pinned release source, and enable `strictPeerDependencies: true` beside `autoInstallPeers: false` in the repository's `pnpm-workspace.yaml`. That local setting does not transfer to a consumer profile: do not bundle a host peer into the plugin, and document the provider package and installation order instead. External implementation libraries belong in `dependencies`. Add no dependency, path alias, or project reference without a production import; never add a path that leaves the repository.
+Use package names across package boundaries and `.ts` extensions for local relative imports. Keep host-provided Cordis and DSH APIs as peers when the consumer supplies them, provide a reachable declared development source when the repository typechecks or tests against them, and do not bundle a host runtime into the plugin. External implementation libraries belong in `dependencies`. Add no dependency, path alias, or project reference without a production import; never add a path that leaves the repository.
 
 ## Validate configuration and failures
 

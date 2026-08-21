@@ -9,7 +9,7 @@ This skill selects evidence for the plugin's actual entry paths. It is guidance,
 
 ## Read the test owners
 
-Read the project-root files `tests/README.md`, `tests/harness.ts`, `tests/plugin.spec.ts`, `README.md`, `AGENTS.md`, and `docs/dsh-plugin-contracts.md`. Tests live under `tests/`, not `src/__tests__/`. A consuming DSH host may add composition-specific tests, but the template's own evidence must run from this repository alone.
+Read the project-root files `AGENTS.md`, `README.md`, and `docs/dsh-plugin-contracts.md`, plus the source, configuration, contract, and focused test owners named by the current package layout. Tests live under `tests/`, not `src/__tests__/`. A consuming DSH host may add composition-specific tests, but the package's own evidence must run from this repository alone.
 
 ## Required evidence map
 
@@ -36,7 +36,7 @@ A service plugin instead verifies that Loader unwraps the default-exported servi
 
 Test schema defaults, each supported explicit value, cross-field or environment-dependent rejection at its promised failure point, and the observable operation result. Avoid tests for hostile values that cannot cross the typed same-process API; test untrusted parser, config, model/tool, file, worker, process, and wire inputs at their real entry.
 
-Prefer authoritative state, events, registered descriptors, process results, or returned values over internal fields and log text. A log assertion is appropriate only when logging is the plugin's documented behavior, as in the untouched minimal template.
+Prefer authoritative state, events, registered descriptors, process results, or returned values over internal fields and log text. A log assertion is appropriate only when logging is the plugin's documented behavior.
 
 ## 3. Prove registration disposal
 
@@ -58,7 +58,7 @@ A hand-built sequence of `ctx.plugin(...)` calls is useful unit coverage but doe
 
 ## 6. Snapshot visible behavior
 
-Stable user- or model-visible text is behavior. Put focused keyless fixtures under `tests/snapshots/`, make the actual example/runner own each fixture, and review expected output semantically. Keep fixtures portable across Linux and macOS; fix nondeterministic scenarios rather than normalizing away meaningful differences. Follow the inventory and refresh rules in `tests/snapshots/README.md`.
+Stable user- or model-visible text is behavior. Add focused keyless fixtures under the package's actual snapshot owner only when the package has a stable textual, visual, browser, or model-visible output contract. Keep fixtures portable across Linux and macOS; fix nondeterministic scenarios rather than normalizing away meaningful differences. Follow the inventory and refresh rules documented by the package.
 
 Follow `AGENTS.md` in a UI plugin repository for its required demonstration channel. In particular, a TUI may require tmux presentation rather than transcript rendering.
 
@@ -71,13 +71,14 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
 After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Use `pnpm pack --dry-run --json` to verify the ready-made release artifact contains the runtime entries and declarations; packaging is an artifact check and does not replace the full development typecheck.
 
-For every required peer, test the package's own workspace with `strictPeerDependencies: true`: a consumer fixture without the provider must fail installation, and the same fixture with the provider must install and import the package. Treat a DSH profile as a separate consumer; its rejection behavior is unproven unless that profile's pnpm strict setting is independently configured and observed.
+For every required peer, verify the package's declared development/workspace provider path and, when the selected consumer enforces peer constraints, test installation without the provider and with the provider. Treat a DSH profile as a separate consumer; its rejection behavior is unproven unless that profile's peer policy is independently configured and observed.
 
-Use `pnpm pack --dry-run --json` to inspect files only in the release stage or when exports/files changed. A packed-consumer or Git-install smoke belongs to `dsh-plugin-release` at `.agents/skills/dsh-plugin-release/SKILL.md`.
+Use the pack output to inspect files whenever exports, files, generated artifacts, or distribution behavior changes. A packed-consumer or Git-install smoke belongs to `dsh-plugin-release` at `.agents/skills/dsh-plugin-release/SKILL.md`.
 
 ## Clear the harness tsconfig pin
 

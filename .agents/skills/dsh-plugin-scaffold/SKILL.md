@@ -5,7 +5,7 @@ description: Use after dsh-plugin-plan to create a new standalone DSH plugin rep
 
 # Scaffold a Plugin Repository
 
-This skill creates a clean standalone repository from the project-root `README.md` contract. It is guidance, not a blind copy script: inspect the source and target first, preserve the template's direct source-to-artifact build, and stop rather than overwriting an existing non-empty directory.
+This skill creates a clean standalone repository from the project-root `README.md` contract. It is guidance, not a blind copy script: inspect the source and target first, preserve the template's build and artifact gates, and stop rather than overwriting an existing non-empty directory.
 
 ## Required handoff
 
@@ -20,13 +20,14 @@ Validate names before copying:
 
 ## Copy the source skeleton
 
-Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve one build path:
+Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve the package's actual build path:
 
-- development/CI and release: `tsdown.config.ts` compiles the host entries directly from `src/`, while `tsc --noEmit` performs the source and test typechecks.
+- development/CI and release: the repository's configured build command compiles the declared runtime faces directly from source, while the configured typecheck performs source and test checks;
+- if declaration assembly, closure wrapping, generated assets, or another artifact verifier exists, keep those stages explicit and run the final artifact gate before packing.
 
-The build resolves only files and dependencies declared inside the repository; it does not use a repository-external project reference or install-time lifecycle build.
+The template's boundary verifier currently enforces the sample skeleton and package exports. If a new plugin deliberately replaces those owners or artifact faces, update `scripts/verify-self-contained.mjs` and the local contract documentation as part of the same scaffold change; do not leave the verifier asserting a deleted layout.
 
-Preserve the scalable skeleton: `src/config.ts`, `src/runtime.ts`, `src/README.md`, `tests/harness.ts`, `tests/README.md`, `tests/snapshots/README.md`, and `patches/README.md`. These are the baseline separation and local contracts for feature modules, shared test composition, visible-output fixtures, and dependency or DSH-host patches; do not copy Turtle UI product-specific directories unless the planned plugin owns those capabilities.
+Preserve the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, optional snapshot fixtures, and optional dependency or DSH-host patch guidance. Do not copy product-specific directories unless the planned plugin owns those capabilities.
 
 Preserve the pinned Node, pnpm, Cordis, TypeScript, Vitest, and tsdown ranges from the current template unless an explicitly recorded host compatibility decision requires a coordinated update. Do not replace them with `latest`.
 
@@ -36,11 +37,9 @@ Update identity deliberately in these owners:
 
 - `package.json`: `name`, `description`, optional repository metadata, exports/files, and `private` according to the distribution plan;
 - `src/index.ts`: module name, exported `name`, and Loader-facing exports;
-- `src/config.ts` and `src/runtime.ts`: module paths, configuration description, defaults, and placeholder behavior;
-- `src/invariant.ts`: module path, exact `PACKAGE_NAME`, companion plugin name, and invariant explanation;
-- `tests/plugin.spec.ts`: package description, expected plugin id, configuration assertions;
-- `cordis.patch.yml`: package names, deployment-local row ids, and planned configuration;
-- `tsconfig.json`, `tsconfig.vitest.json`, `tsdown.config.ts`, and `scripts/*.mjs`: local compiler, artifact, and boundary-verification topology;
+- the source, configuration, invariant, contract, and focused test owners named by the target package;
+- `tsconfig*.json`, `tsdown*.ts`, and `scripts/*` when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;
+- the package's actual bundle patch and composition metadata when the package contributes a profile bundle;
 - `README.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
 
 Search afterward for all template markers in identity owners, excluding this reusable skill suite:
@@ -48,7 +47,7 @@ Search afterward for all template markers in identity owners, excluding this reu
 ```sh
 grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors' \
   --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=.agents \
-  package.json src tests cordis.patch.yml README.md AGENTS.md tsconfig*.json
+  package.json src tests scripts cordis.patch.yml README.md AGENTS.md tsconfig*.json
 ```
 
 Review each match; do not suppress a remaining load-visible placeholder because it appears in documentation. Generic references inside `.agents/skills/` are intentionally not identity owners.
@@ -60,11 +59,10 @@ For every planned host API import, update these together:
 1. `peerDependencies` for runtime-provided Cordis/host APIs;
 2. a reachable registry development dependency when the package must typecheck or test against it;
 3. local TypeScript settings and package declarations;
-4. `pnpm-workspace.yaml`: keep `autoInstallPeers: false` and set `strictPeerDependencies: true` so local install and checks fail on missing or invalid required peers;
-5. `tsconfig.vitest.json` and the Vitest resolver when test aliases are needed;
-6. `inject` and `cordis.patch.yml` when the service must be composed.
+4. the test runner configuration and any module-loader fixture;
+5. `inject` and the package's bundle patch when the service must be composed.
 
-`strictPeerDependencies` belongs to the repository workspace and is not copied into a packed plugin or a consuming DSH profile. Composition must therefore install or otherwise provide every required peer in the target profile before activation. Do not move a host peer into `dependencies` or `bundledDependencies` just to make a consumer install appear self-contained; only a package that owns and provides a runtime may bundle it.
+Host-provided runtime APIs belong in `peerDependencies` when the consumer supplies them and need a reachable declared development source when the repository builds or tests against them. The consumer must provide required peers before activation; do not move a host peer into `dependencies` or `bundledDependencies` merely to make installation appear self-contained. Only a package that owns and provides a runtime may bundle it.
 
 Use `dependencies` for libraries bundled or required by the plugin at runtime. Keep optional peers explicit. This template forbids local `link:` and `file:` dependencies and forbids project references that leave the repository. Every fresh clone must resolve its build graph from its own manifest and lockfile.
 
@@ -84,6 +82,7 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
 If the execution sandbox, network, native build, or package-manager state blocks one command, preserve its exact failure and retry unchanged only through the environment's approved narrow escalation path. Do not rewrite dependencies to hide an environmental denial.

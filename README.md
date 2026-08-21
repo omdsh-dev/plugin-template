@@ -49,26 +49,18 @@ Normal npm dependencies are resolved from the package registry. A DSH host is a 
 
 ## Scalable source and test structure
 
-The baseline mirrors the scalable first-level split used by larger DSH plugins while keeping product behavior minimal:
+A package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, and tests in the owners appropriate to the package; the template does not require every plugin to copy one fixed directory layout.
 
-- `src/index.ts` owns the Loader namespace;
-- `src/config.ts` owns the serializable schema and direct-call defaults;
-- `src/runtime.ts` owns fakeable host boundaries and Cordis activation;
-- `tests/harness.ts` owns the shared real-Cordis test mount;
-- cohesive production behavior grows under capability-named `src/<feature>/` directories;
-- stable product-visible expected output belongs under `tests/snapshots/`;
-- dependency and DSH-host patches belong under `patches/`: pnpm `patchedDependencies` for exact registry versions, self-contained diffs against the DSH host when the plugin needs host source changes.
-
-Directories such as Turtle UI's chat, components, and extension areas describe that product, not the DSH plugin contract. Create equivalent feature directories only when the new plugin owns those capabilities. See `src/README.md`, `tests/README.md`, `tests/snapshots/README.md`, and `patches/README.md` for the local rules.
+The template's sample skeleton still uses `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `src/invariant.ts`, `tests/harness.ts`, and `tests/plugin.spec.ts`; retain those owners when they fit the package, and document any deliberate replacement. Stable product-visible expected output belongs under the package's actual snapshot owner. Dependency and DSH-host patches use the optional `patches/` contract when needed.
 
 ## Create your plugin
 
-1. Replace the package identity in `package.json`, `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `src/invariant.ts`, `tests/plugin.spec.ts`, `cordis.patch.yml`, the TypeScript package metadata, `README.md`, and `AGENTS.md`.
+1. Replace package identity in `package.json`, the Loader owner, configuration/runtime/invariant owners, focused test owners, bundle metadata, TypeScript metadata, `README.md`, and `AGENTS.md` as applicable. The sample skeleton names these owners explicitly; a deliberate replacement must update the package's boundary verifier and local documentation too.
 2. Replace the template package name `@your-scope/dsh-plugin-template` and plugin ids only in those identity owners. Do not perform a global replacement inside `.agents/skills/`; its generic examples and marker checks must remain reusable.
 3. Update `description`, `LICENSE`, and `cordis.patch.yml`.
-4. Add only the DSH host services used by the implementation to the package contract and composition patch. Keep source and build dependencies resolvable from this repository's `node_modules`.
+4. Add only the DSH host services used by the implementation to the package contract and composition patch. Keep source and build dependencies resolvable from this repository's `node_modules`; host-provided runtime APIs remain consumer-supplied peers.
 5. Replace the empty invariant installer when the package owns an authoritative event or mutable data relationship.
-6. Implement activation and host-boundary behavior in `src/runtime.ts`, moving cohesive capabilities into project-specific `src/<feature>/` directories as needed. Keep `src/index.ts` limited to Loader metadata and public re-exports, and scope registrations through `ctx.effect()`, `ctx.on()`, or registry disposers.
+6. Implement activation and host-boundary behavior in the actual runtime/service owners, moving cohesive capabilities into project-specific modules as needed. Keep `src/index.ts` limited to Loader metadata and public re-exports when that matches the package, and scope registrations through `ctx.effect()`, `ctx.on()`, or registry disposers.
 7. Keep every source, compiler, documentation, and project-reference path inside this repository. Describe files from the project root, for example `docs/dsh-plugin-contracts.md`. Do not add local-path `link:` or `file:` dependencies.
 8. Set `private` to `false` only when the package's public dependencies and distribution artifacts are ready.
 
@@ -101,16 +93,16 @@ pnpm test
 pnpm run build
 ```
 
-`pnpm install` resolves only the dependencies declared by this package. `verify:self-contained` rejects filesystem dependency specs, compiler paths that leave the repository, external or broken Markdown links, absolute workstation paths, and malformed bundled skill metadata. `typecheck` checks both the source project in `tsconfig.json` and the source-plane tests in `tsconfig.vitest.json` against the local strict compiler baseline. `build` compiles the host entries directly from `src/` and emits ready-to-pack runtime JavaScript plus declarations into `lib/`; it does not run an install-time lifecycle build.
+`verify:self-contained` rejects filesystem dependency specs, compiler paths that leave the repository, external or broken Markdown links, absolute workstation paths, and malformed bundled skill metadata. `typecheck` checks the configured source and test projects against the local strict compiler baseline. `build` runs the configured source-to-artifact pipeline, including any declaration assembly or final artifact verifier owned by the package, and emits ready-to-pack output; it does not run an install-time lifecycle build.
 
-The release artifact is built from `src/` before packing. Profile or consumer installation uses the ready-made `lib/` output and does not run `prepare`; `pnpm pack --dry-run --json` verifies the final archive contents.
+The release artifact is built from the configured source owners before packing. Profile or consumer installation uses the ready-made `lib/` output and does not run `prepare`; `pnpm pack --dry-run --json` verifies the final archive contents.
 
 ## CI
 
 Two GitHub Actions workflows ship with the template:
 
 - `.github/workflows/ci.yml` — every push to `main` and every pull request: install with the frozen lockfile, `verify:self-contained`, typecheck, tests, and build.
-- `.github/workflows/release.yml` — every push to `main`: verifies, typechecks, tests, builds, packs the ready-made tarball (`pnpm pack`), and publishes it to a GitHub Release tagged `v<version>` from `package.json`. Bump `version` to cut a new release; re-pushing the same version refreshes that release's artifact.
+- `.github/workflows/release.yml` — every push to `main`: verifies, typechecks, tests, builds, packs the ready-made tarball (`pnpm pack`), and follows the repository's configured GitHub Release policy.
 
 ## Profile activation
 

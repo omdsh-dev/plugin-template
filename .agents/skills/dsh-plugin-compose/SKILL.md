@@ -39,7 +39,7 @@ Apply these rules before installation:
 - Keep credentials out of patches; use credential references or environment-variable names.
 - An empty or comments-only patch is invalid because it parses to no list. Use `[]` for an intentionally empty layer.
 
-`cordis.patch.yml` cannot edit DSH source files, compiler settings, build scripts, generated catalogs, CLI routing, or runtime boot code. If behavior requires those changes, stop and classify it as a DSH host change, carried as a documented patch under `patches/` (see `patches/README.md`), rather than hiding it in plugin installation instructions.
+`cordis.patch.yml` cannot edit DSH source files, compiler settings, build scripts, generated catalogs, CLI routing, or runtime boot code. If behavior requires those changes, stop and classify it as a DSH host change; use the repository's documented, controlled host-patch process when one is required rather than hiding the change in plugin installation instructions.
 
 ## Choose an isolated profile
 
@@ -51,14 +51,14 @@ Select the base profile that supplies the required services. A custom profile in
 
 Confirm `pnpm` is on `PATH`; `dsh plugin` forwards package-manager operations to it and fails before installation when it is unavailable.
 
-Install a packed artifact, registry version, or user-approved Git spec through DSH's profile package manager. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete. Before installation, enumerate every required peer in the package manifest and verify that the target profile already provides each one; install provider bundles or packages first rather than copying host peers into the consumer. The plugin repository's `strictPeerDependencies` setting applies only to its own workspace and is not transferred to the consuming profile. Do not claim that `dsh plugin add` rejects a missing peer unless the profile's own strict setting has been independently verified.
+Install a packed artifact, registry version, or user-approved Git spec through DSH's profile package manager. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete. Before installation, enumerate every required peer in the package manifest and verify that the target profile already provides each one; install provider bundles or packages first rather than copying host peers into the consumer. The package repository's peer policy is not transferred to the consuming profile. Do not claim that `dsh plugin add` rejects a missing peer unless the profile's own peer policy has been independently verified.
 
 ```sh
 pnpm pack
 # pass the generated archive, registry spec, or approved Git spec to dsh plugin
 ```
 
-The official release channel uses a ready-made tarball, so profile installation does not run a package `prepare` hook or require a lifecycle-build allowlist. If a source Git spec is explicitly approved for another package, follow that package's documented build contract rather than adding broad `allowBuilds` entries.
+The release channel uses a ready-made tarball, so profile installation does not run a package `prepare` hook or require a lifecycle-build allowlist. If a source Git spec is explicitly approved for another package, follow that package's documented build contract rather than adding broad `allowBuilds` entries.
 
 A successful package-manager command should add a manifest-declared bundle to `dsh.profile.bundles`. A dependency without `dsh.bundle.patch` remains installed but inactive as a bundle; treat the warning as a manifest defect when activation was intended.
 

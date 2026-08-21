@@ -5,22 +5,21 @@ description: Use when checking whether this standalone DSH plugin is ready for p
 
 # Prepare a Plugin for Distribution
 
-This skill proves that a plugin's ready-made artifact can be consumed through the selected channel. It is guidance, not publishing authority: never change remotes, push, tag, release, or run a registry publish command without a direct user request.
+This skill proves that a plugin's ready-made artifact can be consumed through the selected channel. It is guidance, not publishing authority: never change remotes, push, tag, release, or run a registry publish command without a direct user request. Validate the repository's configured build, declaration, generated-asset, and artifact gates rather than assuming one fixed bundle layout.
 
 ## Select the channel
 
 Record one or more intended channels:
 
 - **Packed local artifact:** consumer installs the tarball produced inside this repository; no repository-relative `link:` or `file:` dependency is allowed.
-- **Git source:** only supported when the repository deliberately tracks complete built output or documents a separate source-build step; this template's official model is a prebuilt artifact.
+- **Git source:** only supported when the repository deliberately tracks complete built output or documents a separate source-build step; the selected repository channel determines which model applies.
 - **npm/tarball:** consumer installs prepacked files; the tarball must already contain every exported runtime and declaration file.
 
 Keep `private: true` unless npm publication is explicitly intended. A private package may still be consumed as a packed local artifact or from a GitHub Release. Distribution readiness does not grant permission to make it public.
 
 ## Audit identity and portability
 
-Search source-controlled identity owners for template markers, old package names, stale row ids, absolute local paths, credentials, and forbidden local dependencies:
-
+Search source-controlled identity owners for template markers, old package names, stale row ids, absolute local paths, credentials, and forbidden local dependencies. Include all configured source, test, script, build, patch, and documentation owners; adjust the path list to the package's actual layout and exclude only generated or skill metadata directories that are not identity owners.
 ```sh
 grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors|link:|file:|\.\./' \
   --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=.agents \
@@ -42,7 +41,10 @@ pnpm run verify:self-contained
 pnpm run typecheck
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
+
+The boundary verifier is part of the package's configured artifact contract; if the package replaces the sample layout or exports, verify that the script and local documentation were updated together before treating the gate as meaningful.
 
 Import every public runtime export from `lib/` under plain Node. Verify `package.json` `main`, `types`, `exports`, and `files` point to files that actually exist after the build. Function plugins must retain their namespace exports; service plugins must resolve to the intended default class; `./invariant` must load.
 
@@ -54,13 +56,13 @@ Run:
 pnpm pack --dry-run --json
 ```
 
-`pnpm pack` calculates the archive from the already-built `lib/` output; inspect the complete file list. Require the runtime bundle, declarations and maps promised by exports, `cordis.patch.yml` for bundles, and any deliberately shipped assets. Reject credentials, `.env`, `.git`, tests, temporary stores, local caches, unexpected generated chunks, unexpected `node_modules` content, or files outside the documented package contract. Required host peers must be absent from the archive; only a package that owns and provides a runtime may use `bundledDependencies`. The repository's `strictPeerDependencies: true` setting validates the local workspace, not the consumer profile or the packed artifact.
+`pnpm pack` calculates the archive from the already-built output; inspect the complete file list. Require every runtime and declaration file promised by `main`, `types`, `exports`, and `files`, plus `cordis.patch.yml` when the package declares a bundle and any deliberately shipped assets. Reject credentials, `.env`, `.git`, tests, temporary stores, local caches, unexpected generated chunks, unexpected `node_modules` content, host runtime copies, or files outside the documented package contract. Required host peers must be absent from the archive; only a package that owns and provides a runtime may use `bundledDependencies`.
 
 When practical, create the tarball in a temporary directory, install it into a fresh minimal consumer, and import every public entry. Use the tarball rather than the source checkout so missing `files`, exports, and runtime dependencies fail.
 
 ## Verify release installation
 
-Install the packed `pkg.tgz` (or the published GitHub Release URL) into an isolated profile after installing every required provider peer. Confirm the package manager adds the bundle, the effective rows include the intended plugin row, and every manifest-declared runtime and type entry resolves from the archive. If the profile does not enable strict peer checking, record missing-peer rejection as unverified rather than claiming the package manager hard-failed. Load and follow `dsh-plugin-compose` at `.agents/skills/dsh-plugin-compose/SKILL.md` for isolated profile installation and real-entry activation. A successful pack command does not prove profile resolution or activation.
+Install the packed artifact (or the published release URL) into an isolated profile after providing every required peer. Confirm the package manager adds the declared bundle when applicable, the effective rows match the package's composition contract, and every manifest-declared runtime and type entry resolves from the archive. If the profile does not enable strict peer checking, record missing-peer rejection as unverified rather than claiming the package manager hard-failed. Load and follow `dsh-plugin-compose` at `.agents/skills/dsh-plugin-compose/SKILL.md` for isolated profile installation and real-entry activation. A successful pack command does not prove profile resolution or activation.
 
 ## Documentation and repository state
 
@@ -73,11 +75,11 @@ git status --short --branch
 git diff --check
 ```
 
-Ensure generated `lib/` and `node_modules/` are ignored unless the chosen distribution policy deliberately tracks built artifacts. Do not delete the user's uncommitted work, rewrite history, create a commit, or clean an unrelated file.
+Ensure generated `lib/`, `node_modules/`, coverage output, and local tarballs are ignored unless the chosen distribution policy deliberately tracks them. Do not delete the user's uncommitted work, rewrite history, create a commit, or clean an unrelated file.
 
 ## Version and publication
 
-Choose a version according to the package's actual compatibility policy. Verify the lockfile and packed manifest reflect it. Tagging, GitHub release creation, npm authentication, `pnpm publish`, and pushing are separate user-authorized actions; when authorized, inspect the destination and package owner before executing them and never print tokens.
+If the repository has a release workflow, follow its documented version, tag, overwrite, checksum, and artifact naming policy; do not infer that an existing release may be overwritten or that a checksum is published. Tagging, GitHub release creation, npm authentication, `pnpm publish`, and pushing are separate user-authorized actions; when authorized, inspect the destination and package owner before executing them and never print tokens.
 
 ## Release-readiness report
 
