@@ -9,7 +9,7 @@ This skill owns the patch-writing work: the declarative stub and the trusted run
 
 ## Keep the consumer artifact peer-only
 
-A Fabric-dependent plugin declares `cordis-fabric` and `cordis-fabric-api` as required peers and mirrors them in `devDependencies` for local build and tests. Set `strictPeerDependencies: true` alongside `autoInstallPeers: false` in the plugin repository's `pnpm-workspace.yaml`. Do not copy the Fabric trio into the consumer's `dependencies` or `bundledDependencies`; the separate Fabric release bundle owns those packages and must be installed in the target profile first. The local workspace setting does not configure the profile's pnpm behavior.
+A Fabric-dependent plugin declares `@oh-my-dsh/cordis-fabric` and `@oh-my-dsh/cordis-fabric-api` as required peers and mirrors them in `devDependencies` for local build and tests. Do not copy the Fabric trio into the consumer's `dependencies` or `bundledDependencies`; the separate `@oh-my-dsh/cordis-fabric-pack` release bundle owns those packages and must be installed in the target profile first. The local workspace's peer policy does not configure the profile's package manager.
 
 ## Place the stub on the declaring row
 
@@ -53,8 +53,8 @@ Patch id is stable and namespaced (`owner/feature`); keep the same id in the stu
 Handlers are trusted code bound when the plugin mounts. Through the compat facade:
 
 ```ts
-import { FabricCompatService } from 'cordis-fabric-api'
-import type { FabricCall } from 'cordis-fabric'
+import { FabricCompatService } from '@oh-my-dsh/cordis-fabric-api'
+import type { FabricCall } from '@oh-my-dsh/cordis-fabric'
 // in apply:
 await ctx.plugin(FabricCompatService)
 const compat = ctx.get('fabricCompat')
@@ -70,7 +70,7 @@ Or with the pure service when mounted: `ctx.fabric.register({ id, target, operat
 
 ## Serve browser rewrites separately
 
-Load-time hooks only see Node imports. For a browser bundle, serve a rewritten copy. Fabric `0.1.0` resolves the target through `ctx.baseUrl`, so guard the serving seam on both the webserver capability and `ctx.baseUrl` before calling `serveBundle`:
+Load-time hooks only see Node imports. For a browser bundle, serve a rewritten copy. Fabric `0.1.1` resolves the target through `ctx.baseUrl`, so guard the serving seam on both the webserver capability and `ctx.baseUrl` before calling `serveBundle`:
 
 ```ts
 compat.serveBundle({
