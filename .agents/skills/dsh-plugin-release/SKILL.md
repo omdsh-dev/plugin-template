@@ -19,18 +19,18 @@ Keep `private: true` unless npm publication is explicitly intended. A private pa
 
 ## Audit identity and portability
 
-Search source-controlled identity owners for template markers, old package names, stale row ids, absolute local paths, credentials, and forbidden local dependencies. Include all configured source, test, script, build, patch, and documentation owners; adjust the path list to the package's actual layout and exclude only generated or skill metadata directories that are not identity owners.
+Search source-controlled identity owners for template markers, old package names, stale row ids, absolute local paths, credentials, and forbidden local dependencies. Include all configured source, test, build, and documentation owners; adjust the path list to the package's actual layout and exclude only generated or skill metadata directories that are not identity owners.
 ```sh
 grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors|link:|file:|\.\./' \
   --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=.agents \
-  package.json src tests cordis.patch.yml README.md AGENTS.md tsconfig*.json scripts
+  package.json src tests cordis.patch.yml README.md AGENTS.md tsconfig*.json
 ```
 
 Review every match. This template does not permit repository-relative `link:`, `file:`, repository-external source, or repository-external project-reference paths. Registry packages and runtime host peers are package dependencies, not filesystem inputs; every consumer must resolve the ready-made build from the repository's own manifest and lockfile.
 
 Confirm package name, version, description, license, repository metadata, Node engine, package manager, Cordis plugin id, invariant package name, bundle rows, README examples, and lockfile all describe the same package.
 
-If `pnpm-workspace.yaml` declares `patchedDependencies`, verify every project-root patch path exists under `patches/`, targets the exact installed version, has a documented reason, and is available during a clean install. A DSH host patch under `patches/` must be a self-contained diff with a documented pinned host snapshot, regenerated and applied through `scripts/extract-patch.mjs` and `scripts/patch.sh` (configured in `patches/host-patch.config.json`), and must not appear in the published package's `files`. If no patch is declared, `patches/` must contain guidance only.
+This template does not own `pnpm` patched dependencies or DSH host source patches. Validate the registry dependency graph from `package.json` and `pnpm-lock.yaml`; profile composition uses `cordis.patch.yml` and must not require repository-local patch scripts.
 
 ## Run package verification
 

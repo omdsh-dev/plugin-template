@@ -11,9 +11,7 @@
   "scripts": {
     "build": "tsdown --config-loader unrun --config tsdown.config.ts",
     "lint": "oxlint --config .oxlintrc.json --type-check --deny-warnings src tests",
-    "test": "vitest run",
-    "extract:patch": "node scripts/extract-patch.mjs",
-    "patch:host": "bash scripts/patch.sh"
+    "test": "vitest run"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

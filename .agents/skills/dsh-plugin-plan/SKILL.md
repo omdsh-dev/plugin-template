@@ -49,7 +49,7 @@ Plan fail-loud behavior for self-contained misconfiguration at plugin load, and 
 
 ## Choose the repository structure
 
-Keep the current package boundaries focused instead of assuming a fixed skeleton. Record the files and directories that own Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and patches. For a larger plugin, record whether complexity justifies capability-named modules, additional shared harness support, visible fixtures under `tests/snapshots/`, or dependency or DSH-host patches under `patches/`. Do not pre-create directories copied from another plugin's product domains.
+Keep the current package boundaries focused instead of assuming a fixed skeleton. Record the files and directories that own Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and profile composition metadata. For a larger plugin, record whether complexity justifies capability-named modules, additional shared harness support, or visible fixtures under `tests/snapshots/`. Do not pre-create directories copied from another plugin's product domains.
 
 ## Define ownership and lifecycle
 
