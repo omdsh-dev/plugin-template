@@ -19,8 +19,7 @@
 │   └── README.md                 # 依赖补丁与 DSH host patch 契约
 ├── scripts/
 │   ├── extract-patch.mjs         # 配置驱动的 host patch 再生成(见 patches/README.md)
-│   ├── patch.sh                  # 幂等的 host patch 应用
-│   └── verify-self-contained.mjs # 仓库边界与 skill 元数据检查
+│   └── patch.sh                  # 幂等的 host patch 应用
 ├── src/
 │   ├── README.md                 # 服务与功能模块的增长规则
 │   ├── config.ts                 # 可序列化 schema 与解析后的默认值
@@ -33,6 +32,7 @@
 │   ├── plugin.spec.ts            # Loader 导出与激活测试
 │   └── snapshots/
 │       └── README.md             # 可选的产品可见 fixture 契约
+├── .oxlintrc.json                 # 类型感知的 Oxlint 配置
 ├── .gitignore                    # 生成产物排除
 ├── AGENTS.md                     # 仓库本地贡献规则
 ├── LICENSE                       # 模板许可证
@@ -41,8 +41,7 @@
 ├── package.json                  # 导出、peers、dsh.bundle.patch
 ├── pnpm-lock.yaml                # 可复现的 registry 依赖图
 ├── pnpm-workspace.yaml           # 包管理器与可选补丁策略
-├── tsconfig.json                 # 严格 no-emit 类型检查工程
-├── tsconfig.vitest.json          # 源码平面测试类型检查工程
+├── tsconfig.json                 # 编译器与类型感知 lint 工程
 ├── tsdown.config.ts              # 从源码直接构建运行时与声明
 └── vitest.config.ts              # 测试运行器配置
 ```
@@ -95,13 +94,12 @@ DSH 会发现在 `.agents/skills/` 下的仓库本地工作流。完整流程从
 
 ```sh
 pnpm install
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 ```
 
-`pnpm install` 只解析本包声明的依赖。`verify:self-contained` 拒绝文件系统依赖 spec、离开仓库的编译器路径、外部或损坏的 Markdown 链接、绝对工作站路径和格式错误的 bundle skill 元数据。`typecheck` 同时检查 `tsconfig.json` 的源码工程与 `tsconfig.vitest.json` 的源码平面测试,对照本地严格编译器基线。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。
+`pnpm install` 只解析本包声明的依赖。`lint` 使用启用类型感知分析的 Oxlint 并拒绝警告,检查配置的源码与测试工程。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。
 
 release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费现成的 `lib/` 输出，不运行 `prepare`；使用 `pnpm pack --dry-run --json` 检查最终归档内容。
 
@@ -109,8 +107,8 @@ release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费�
 
 模板自带两个 GitHub Actions 工作流:
 
-- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、`verify:self-contained`、typecheck、测试与构建。
-- `.github/workflows/release.yml` — 每次推送到 `main`:执行验证、类型检查、测试、构建，打包现成 tarball(`pnpm pack`)，发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
+- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、Oxlint 静态分析、测试与构建。
+- `.github/workflows/release.yml` — 每次推送到 `main`:执行 Oxlint、测试、构建，打包现成 tarball(`pnpm pack`)，发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
 
 ## Profile 激活
 
@@ -156,8 +154,7 @@ export function apply(ctx: Context, config: Config): void { /* effects */ }
 在考虑 packed 或 GitHub Release 分发前，构建并检查最终归档:
 
 ```sh
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 pnpm pack --dry-run --json

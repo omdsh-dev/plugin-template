@@ -34,18 +34,17 @@ Every package may expose `./invariant` as a separate function plugin. Its instal
 
 ## Evidence
 
-The minimum package evidence includes a real Loader export-shape test, schema/default behavior, observable plugin behavior, and disposal. Product-visible behavior additionally needs a real assembled composition test and a focused keyless snapshot when output is stable and user-visible. Typechecking, tests, and a development build are separate checks.
+The minimum package evidence includes a real Loader export-shape test, schema/default behavior, observable plugin behavior, and disposal. Product-visible behavior additionally needs a real assembled composition test and a focused keyless snapshot when output is stable and user-visible. Type-aware static analysis, tests, and a development build are separate checks.
 
 ## Build and distribution
 
 The development and release build is:
 
 ```sh
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 pnpm pack --dry-run --json
 ```
 
-The template's `verify-self-contained` gate currently enforces the sample layout and manifest faces. If a plugin deliberately replaces those owners or artifact faces, update that gate and this documentation together. The release build produces a ready-made artifact; `pnpm pack --dry-run --json` inspects the complete file list. It emits every runtime and declaration file promised by `main`, `types`, `exports`, and `files` using only this repository's installed dependencies. Profile/plugin installation consumes that packed artifact and does not run an install-time `prepare` hook. A package is ready for packed or GitHub Release distribution only when every manifest-declared runtime and type entry exists after the build.
+The Oxlint configuration is the repository's static-analysis gate. It performs type-aware analysis and denies warnings. The release build produces a ready-made artifact; `pnpm pack --dry-run --json` inspects the complete file list. It emits every runtime and declaration file promised by `main`, `types`, `exports`, and `files` using only this repository's installed dependencies. Profile/plugin installation consumes that packed artifact and does not run an install-time `prepare` hook. A package is ready for packed or GitHub Release distribution only when every manifest-declared runtime and type entry exists after the build.

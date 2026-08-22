@@ -8,4 +8,4 @@ Extend test support only when the plugin requires it:
 - add `tests/<feature>.spec.ts` for focused feature behavior;
 - add fixtures under `tests/snapshots/` for stable user-, model-, CLI-, terminal-, editor-, or browser-visible expected output.
 
-A harness should mount production services and expose observable state rather than duplicate the implementation. The baseline has no snapshot fixtures and therefore defines no refresh command. When snapshots are introduced, add and document a repository-local refresh command here, with deterministic inputs, exact fixture ownership, and semantic review. Tests must remain typechecked by `tsconfig.vitest.json`.
+A harness should mount production services and expose observable state rather than duplicate the implementation. The baseline has no snapshot fixtures and therefore defines no refresh command. When snapshots are introduced, add and document a repository-local refresh command here, with deterministic inputs, exact fixture ownership, and semantic review. Type-aware static checking is provided by the repository's Oxlint command.

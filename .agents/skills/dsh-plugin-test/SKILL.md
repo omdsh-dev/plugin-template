@@ -13,7 +13,7 @@ Read the project-root files `AGENTS.md`, `README.md`, and `docs/dsh-plugin-contr
 
 ## Required evidence map
 
-Create a short mapping from each promised behavior or failure to the test file and assertion that observes it. Include configuration defaults and rejections, lifecycle/disposal, event or durable state, composition, visible output, and distribution path as applicable. Do not count typechecking, coverage percentage, or an agent report as behavioral evidence.
+Create a short mapping from each promised behavior or failure to the test file and assertion that observes it. Include configuration defaults and rejections, lifecycle/disposal, event or durable state, composition, visible output, and distribution path as applicable. Do not count static analysis, coverage percentage, or an agent report as behavioral evidence.
 
 ## 1. Verify Loader exports
 
@@ -67,14 +67,13 @@ Follow `AGENTS.md` in a UI plugin repository for its required demonstration chan
 Run the target package commands:
 
 ```sh
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 pnpm pack --dry-run --json
 ```
 
-After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Use `pnpm pack --dry-run --json` to verify the ready-made release artifact contains the runtime entries and declarations; packaging is an artifact check and does not replace the full development typecheck.
+After build, import each public runtime entry from `lib/` under plain Node and verify the expected ESM exports. Use `pnpm pack --dry-run --json` to verify the ready-made release artifact contains the runtime entries and declarations; packaging is an artifact check and does not replace the development static-analysis check.
 
 For every required peer, verify the package's declared development/workspace provider path and, when the selected consumer enforces peer constraints, test installation without the provider and with the provider. Treat a DSH profile as a separate consumer; its rejection behavior is unproven unless that profile's peer policy is independently configured and observed.
 

@@ -22,10 +22,10 @@ Validate names before copying:
 
 Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve the package's actual build path:
 
-- development/CI and release: the repository's configured build command compiles the declared runtime faces directly from source, while the configured typecheck performs source and test checks;
+- development/CI and release: the repository's configured build command compiles the declared runtime faces directly from source, while the configured Oxlint command performs type-aware static analysis over source and tests;
 - if declaration assembly, closure wrapping, generated assets, or another artifact verifier exists, keep those stages explicit and run the final artifact gate before packing.
 
-The template's boundary verifier currently enforces the sample skeleton and package exports. If a new plugin deliberately replaces those owners or artifact faces, update `scripts/verify-self-contained.mjs` and the local contract documentation as part of the same scaffold change; do not leave the verifier asserting a deleted layout.
+The package's static-analysis configuration and local documentation must be updated together when a new plugin deliberately replaces the sample owners or artifact faces.
 
 Preserve the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, optional snapshot fixtures, and optional dependency or DSH-host patch guidance. Do not copy product-specific directories unless the planned plugin owns those capabilities.
 
@@ -57,7 +57,7 @@ Review each match; do not suppress a remaining load-visible placeholder because 
 For every planned host API import, update these together:
 
 1. `peerDependencies` for runtime-provided Cordis/host APIs;
-2. a reachable registry development dependency when the package must typecheck or test against it;
+2. a reachable registry development dependency when the package must run type-aware static analysis or tests against it;
 3. local TypeScript settings and package declarations;
 4. the test runner configuration and any module-loader fixture;
 5. `inject` and the package's bundle patch when the service must be composed.
@@ -78,8 +78,7 @@ Before adding product behavior, run from the target repository:
 
 ```sh
 pnpm install
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 pnpm pack --dry-run --json

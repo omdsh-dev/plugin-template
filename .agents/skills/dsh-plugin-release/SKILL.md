@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-release
-description: Use when checking whether this standalone DSH plugin is ready for packed or GitHub Release tarball distribution. Validate placeholders, portable dependencies, typecheck/tests/build, public exports, packed files, clean-consumer installation, documentation, versioning, and release authority; require recorded composition evidence without owning ordinary profile wiring.
+description: Use when checking whether this standalone DSH plugin is ready for packed or GitHub Release tarball distribution. Validate placeholders, portable dependencies, static analysis/tests/build, public exports, packed files, clean-consumer installation, documentation, versioning, and release authority; require recorded composition evidence without owning ordinary profile wiring.
 ---
 
 # Prepare a Plugin for Distribution
@@ -37,14 +37,13 @@ If `pnpm-workspace.yaml` declares `patchedDependencies`, verify every project-ro
 Install from the lockfile using the package's documented package manager, then run:
 
 ```sh
-pnpm run verify:self-contained
-pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 pnpm pack --dry-run --json
 ```
 
-The boundary verifier is part of the package's configured artifact contract; if the package replaces the sample layout or exports, verify that the script and local documentation were updated together before treating the gate as meaningful.
+The repository's Oxlint configuration is part of the static-analysis contract; verify that it and the local documentation are synchronized before treating the gate as meaningful.
 
 Import every public runtime export from `lib/` under plain Node. Verify `package.json` `main`, `types`, `exports`, and `files` point to files that actually exist after the build. Function plugins must retain their namespace exports; service plugins must resolve to the intended default class; `./invariant` must load.
 

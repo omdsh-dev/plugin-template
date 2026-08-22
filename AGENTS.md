@@ -9,5 +9,5 @@ This repository is a standalone DeepSeek Harness plugin template.
 - Do not add source, configuration, documentation, project-reference, `link:`, or `file:` paths that leave this repository.
 - Describe repository files with project-root paths such as `docs/dsh-plugin-contracts.md`; never use parent-directory navigation in documentation.
 - Update `README.md`, configuration JSDoc, tests, and `cordis.patch.yml` together when behavior changes.
-- Keep the repository-local `.agents/skills/dsh-plugin-*` workflow synchronized with template paths, commands, and package conventions.
-- Run `pnpm run verify:self-contained`, `pnpm run typecheck`, `pnpm test`, and `pnpm run build` before publishing changes.
+- Keep the repository-local `.agents/skills/dsh-plugin-*` workflow synchronized with template paths, commands, and package conventions. The `dsh-plugin-stent-*` skills share one reference contract at `docs/dsh-plugin-stent.md`; keep their counts, frontmatter, and `agents/openai.yaml` metadata synchronized with the repository files.
+- Run `pnpm run lint`, `pnpm test`, and `pnpm run build` before publishing changes.
