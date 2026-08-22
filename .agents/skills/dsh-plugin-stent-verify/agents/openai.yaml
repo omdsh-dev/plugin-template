@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Stent Plugin"
+  short_description: "Prove Stent bindings and the three-state boot matrix"
+  default_prompt: "Use $dsh-plugin-stent-verify to run Stent binding fixtures, peer checks, and the three-state boot matrix for this plugin."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "DSH Stent Contracts"
+  short_description: "Model the Stent layer for a standalone DSH plugin"
+  default_prompt: "Use $dsh-plugin-stent-contract to decide the plugin's Stent dependency, row declaration, and launch form."

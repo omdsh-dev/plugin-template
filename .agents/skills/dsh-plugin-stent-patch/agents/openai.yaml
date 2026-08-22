@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Stent Patch"
+  short_description: "Write the Stent patch stub and trusted runtime handler"
+  default_prompt: "Use $dsh-plugin-stent-patch to write the Stent patch stub, trusted runtime handler, and browser transform for this plugin."

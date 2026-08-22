@@ -1,4 +1,0 @@
-interface:
-  display_name: "DSH Fabric Contracts"
-  short_description: "Model the Fabric layer for a standalone DSH plugin"
-  default_prompt: "Use $dsh-plugin-fabric-contract to decide the plugin's Fabric dependency, row declaration, and launch form."
