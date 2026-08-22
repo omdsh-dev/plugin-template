@@ -49,11 +49,11 @@ Config schema:
 
 ```json
 {
-  "name": "fabric-host-integration",
+  "name": "host-integration",
   "baseline": "4ee4ae88...",
   "upstream": "0e1065d4",
-  "out": "patches/fabric-host-integration.patch",
-  "exclude": ["packages/self-modification/cordis-fabric", "README.md", "docs"],
+  "out": "patches/host-integration.patch",
+  "exclude": ["packages/self-modification/stent", "README.md", "docs"],
   "revert": ["packages/bundle/web-app/cordis.patch.yml", "pnpm-lock.yaml"],
   "seams": [
     { "file": ".gitignore", "old": "node_modules/\nlib/", "new": "node_modules/\n!apps/cli/tests/fixtures/node_modules/\nlib/" }
