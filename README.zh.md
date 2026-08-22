@@ -16,11 +16,6 @@
 ├── docs/
 │   ├── dsh-plugin-contracts.md   # 所有插件 skill 共享的本地契约
 │   └── dsh-plugin-stent.md       # Stent hook、行、peer 与证据契约
-├── patches/
-│   └── README.md                 # 依赖补丁与 DSH host patch 契约
-├── scripts/
-│   ├── extract-patch.mjs         # 配置驱动的 host patch 再生成(见 patches/README.md)
-│   └── patch.sh                  # 幂等的 host patch 应用
 ├── src/
 │   ├── README.md                 # 服务与功能模块的增长规则
 │   ├── config.ts                 # 可序列化 schema 与解析后的默认值
@@ -57,9 +52,9 @@
 - `tests/harness.ts` 拥有共享的真实 Cordis 测试挂载;
 - 内聚的产品行为按能力命名的 `src/<feature>/` 目录增长;
 - 稳定的产品可见期望输出属于 `tests/snapshots/`;
-- 依赖补丁与 DSH host patch 属于 `patches/`:精确 registry 版本用 pnpm `patchedDependencies`,插件需要宿主源码改动时用针对 DSH 宿主的自包含 diff。
+- Stent descriptor 与 profile 组合属于 `cordis.patch.yml`;宿主源码补丁不属于本模板。
 
-Turtle UI 的 chat、components、extension 目录描述的是那个产品,不是 DSH 插件契约。只有新插件真正拥有那些能力时才创建对应的功能目录。本地规则见 `src/README.md`、`tests/README.md`、`tests/snapshots/README.md` 与 `patches/README.md`。
+Turtle UI 的 chat、components、extension 目录描述的是那个产品,不是 DSH 插件契约。只有新插件真正拥有那些能力时才创建对应的功能目录。本地规则见 `src/README.md`、`tests/README.md` 与 `tests/snapshots/README.md`。
 
 ## 创建你的插件
 

@@ -27,7 +27,7 @@ Copy source-controlled template files while excluding `.git/`, `node_modules/`, 
 
 The package's static-analysis configuration and local documentation must be updated together when a new plugin deliberately replaces the sample owners or artifact faces.
 
-Preserve the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, optional snapshot fixtures, and optional dependency or DSH-host patch guidance. Do not copy product-specific directories unless the planned plugin owns those capabilities.
+Preserve the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, optional snapshot fixtures, and optional dependency guidance. Do not copy product-specific directories unless the planned plugin owns those capabilities.
 
 Preserve the pinned Node, pnpm, Cordis, TypeScript, Vitest, and tsdown ranges from the current template unless an explicitly recorded host compatibility decision requires a coordinated update. Do not replace them with `latest`.
 
@@ -38,7 +38,7 @@ Update identity deliberately in these owners:
 - `package.json`: `name`, `description`, optional repository metadata, exports/files, and `private` according to the distribution plan;
 - `src/index.ts`: module name, exported `name`, and Loader-facing exports;
 - the source, configuration, invariant, contract, and focused test owners named by the target package;
-- `tsconfig*.json`, `tsdown*.ts`, and `scripts/*` when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;
+- `tsconfig*.json`, `tsdown*.ts`, and the package manifest when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;
 - the package's actual bundle patch and composition metadata when the package contributes a profile bundle;
 - `README.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
 
@@ -47,7 +47,7 @@ Search afterward for all template markers in identity owners, excluding this reu
 ```sh
 grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors' \
   --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=.agents \
-  package.json src tests scripts cordis.patch.yml README.md AGENTS.md tsconfig*.json
+  package.json src tests cordis.patch.yml README.md AGENTS.md tsconfig*.json
 ```
 
 Review each match; do not suppress a remaining load-visible placeholder because it appears in documentation. Generic references inside `.agents/skills/` are intentionally not identity owners.

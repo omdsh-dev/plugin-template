@@ -17,11 +17,6 @@ Normal npm dependencies are resolved from the package registry. A DSH host is a 
 ├── docs/
 │   ├── dsh-plugin-contracts.md   # Shared local contract for all plugin skills
 │   └── dsh-plugin-stent.md       # Stent hook, row, peer, and evidence contract
-├── patches/
-│   └── README.md                 # Dependency and DSH-host patch contract
-├── scripts/
-│   ├── extract-patch.mjs         # Config-driven host patch regeneration (see patches/README.md)
-│   └── patch.sh                  # Idempotent host patch application
 ├── src/
 │   ├── README.md                 # Growth rules for services and feature modules
 │   ├── config.ts                 # Serializable schema and resolved defaults
@@ -51,7 +46,7 @@ Normal npm dependencies are resolved from the package registry. A DSH host is a 
 
 A package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, and tests in the owners appropriate to the package; the template does not require every plugin to copy one fixed directory layout.
 
-The template's sample skeleton still uses `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `src/invariant.ts`, `tests/harness.ts`, and `tests/plugin.spec.ts`; retain those owners when they fit the package, and document any deliberate replacement. Stable product-visible expected output belongs under the package's actual snapshot owner. Dependency and DSH-host patches use the optional `patches/` contract when needed.
+The template's sample skeleton still uses `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `src/invariant.ts`, `tests/harness.ts`, and `tests/plugin.spec.ts`; retain those owners when they fit the package, and document any deliberate replacement. Stable product-visible expected output belongs under the package's actual snapshot owner. Stent descriptors and profile composition belong in `cordis.patch.yml`; host source patches are outside this template.
 
 ## Create your plugin
 

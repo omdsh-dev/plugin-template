@@ -16,9 +16,9 @@ Required Cordis services belong in `inject`. Optional services are read through 
 
 ## Scalable repository structure
 
-The package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and optional patch files in explicit owners appropriate to the package; do not force a fixed directory layout onto every plugin.
+The package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and bundle metadata in explicit owners appropriate to the package; do not force a fixed directory layout onto every plugin.
 
-The sample skeleton separates `src/index.ts`, `src/config.ts`, `src/runtime.ts`, and `src/invariant.ts`, with `tests/plugin.spec.ts` and `tests/harness.ts`. Larger packages may replace or extend those owners with capability-named modules, focused test directories, and a package-specific snapshot owner when the planned behavior warrants it. `patches/` remains optional and carries only documented dependency or DSH-host corrections. A host change that cannot be provided through official plugin registration must use that controlled host-patch process and remain outside the published package. `cordis.patch.yml` is not a host source patch.
+The sample skeleton separates `src/index.ts`, `src/config.ts`, `src/runtime.ts`, and `src/invariant.ts`, with `tests/plugin.spec.ts` and `tests/harness.ts`. Larger packages may replace or extend those owners with capability-named modules, focused test directories, and a package-specific snapshot owner when the planned behavior warrants it. `cordis.patch.yml` carries plugin composition metadata; host source changes are outside this template.
 
 ## Lifecycle ownership
 
