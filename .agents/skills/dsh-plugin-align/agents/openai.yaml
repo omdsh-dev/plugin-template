@@ -1,0 +1,4 @@
+interface:
+  display_name: "Align DSH Plugin"
+  short_description: "Migrate an existing plugin to the template toolchain"
+  default_prompt: "Use $dsh-plugin-align to audit and migrate this existing DSH plugin to the repository-local template toolchain without changing its product behavior."

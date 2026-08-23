@@ -58,6 +58,8 @@ Do not create a transient planning file merely to move between skills. Create a 
 
 ## Stage sequence
 
+For an existing non-template repository, load `dsh-plugin-align` from `.agents/skills/dsh-plugin-align/SKILL.md` before planning. It audits and migrates repository mechanics without replacing product behavior; it does not scaffold over a non-empty target.
+
 1. Load `dsh-plugin-plan` from `.agents/skills/dsh-plugin-plan/SKILL.md`. Leave planning only after the plugin form, roles, dependencies, configuration, invariant decision, composition, test tiers, and distribution assumptions are explicit.
 2. For a new repository, load `dsh-plugin-scaffold` from `.agents/skills/dsh-plugin-scaffold/SKILL.md`. Leave scaffolding only after identity, files, dependency metadata, and the package's actual static-analysis, test, build, and pack checks pass. Skip file creation for an existing plugin, but still audit it against the scaffold exit conditions.
 3. Load `dsh-plugin-implement` from `.agents/skills/dsh-plugin-implement/SKILL.md`. Implement only the planned behavior, update the package contract and invariant companion, and keep all registrations owned by the plugin fiber.
