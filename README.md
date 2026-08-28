@@ -75,6 +75,7 @@ DSH discovers the repository-local workflow under `.agents/skills/`. Start with 
 | [`dsh-plugin-scaffold`](.agents/skills/dsh-plugin-scaffold/SKILL.md) | Instantiate and baseline-verify a new repository from this template. |
 | [`dsh-plugin-align`](.agents/skills/dsh-plugin-align/SKILL.md) | Migrate an existing non-template repository to this toolchain without replacing product behavior. |
 | [`dsh-plugin-implement`](.agents/skills/dsh-plugin-implement/SKILL.md) | Implement lifecycle-safe Cordis behavior, metadata, docs, and invariants. |
+| [`dsh-plugin-i18n`](.agents/skills/dsh-plugin-i18n/SKILL.md) | Localize browser UI with typed dictionaries, locale seats, fallback, and disposal evidence. |
 | [`dsh-plugin-compose`](.agents/skills/dsh-plugin-compose/SKILL.md) | Install the bundle into an isolated profile and prove effective activation. |
 | [`dsh-plugin-test`](.agents/skills/dsh-plugin-test/SKILL.md) | Verify Loader exports, behavior, disposal, composition, snapshots, and artifacts. |
 | [`dsh-plugin-release`](.agents/skills/dsh-plugin-release/SKILL.md) | Check local, Git, or npm distribution readiness without publishing implicitly. |

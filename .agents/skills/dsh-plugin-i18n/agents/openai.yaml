@@ -1,0 +1,4 @@
+interface:
+  display_name: "Localize DSH Plugin"
+  short_description: "Add typed locale dictionaries to a client plugin"
+  default_prompt: "Use $dsh-plugin-i18n to localize this DSH plugin's browser UI, register owned dictionaries, wire the locale seat, and verify fallback and disposal."
