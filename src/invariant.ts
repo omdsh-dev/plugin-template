@@ -15,19 +15,35 @@ type InvariantInstaller = (ctx: Context, fail: InvariantFailure) => void | Promi
 
 /** Minimal runtime contract used by the companion without a host source checkout. */
 interface InvariantRegistry {
-  register(packageName: string, installer: InvariantInstaller): () => void
+  register: (packageName: string, installer: InvariantInstaller) => () => void
+}
+
+type InvariantContext = Context & {
+  get: (name: 'invariants', strict?: boolean) => unknown
 }
 
 /** Cordis companion plugin name. */
-export const name = 'plugin-template-invariant'
+const name = 'plugin-template-invariant'
 /** Service required before the companion can reserve package ownership. */
-export const inject = ['invariants']
+const inject = ['invariants']
 
 /**
  * No runtime invariant: the template logs at activation and owns no event
  * sequence or mutable data relation. Replace this when the real plugin does.
  */
-const install: InvariantInstaller = () => {}
+const install: InvariantInstaller = () => {
+  // This template has no invariant to install.
+}
+
+function isInvariantRegistry(value: unknown): value is InvariantRegistry {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  if (!('register' in value)) {
+    return false
+  }
+  return typeof value.register === 'function'
+}
 
 /**
  * Resolve the host registry through Cordis's named service lookup. Keeping this
@@ -37,9 +53,9 @@ const install: InvariantInstaller = () => {}
  * @returns the host invariant registry.
  * @throws {Error} when the companion is loaded without its host service.
  */
-function getInvariantRegistry(ctx: Context): InvariantRegistry {
-  const registry = ctx.get('invariants') as InvariantRegistry | undefined
-  if (registry === undefined) {
+function getInvariantRegistry(ctx: InvariantContext): InvariantRegistry {
+  const registry = ctx.get('invariants')
+  if (!isInvariantRegistry(registry)) {
     throw new Error(`invariant companion requires the "invariants" service for ${PACKAGE_NAME}`)
   }
   return registry
@@ -50,5 +66,11 @@ function getInvariantRegistry(ctx: Context): InvariantRegistry {
  * @param ctx - Cordis context carrying the invariant service.
  * @returns the installed registration's disposer after setup succeeds.
  */
-export const apply = (ctx: Context): Promise<() => void> =>
-  Promise.resolve(getInvariantRegistry(ctx).register(PACKAGE_NAME, install))
+async function apply(ctx: Context): Promise<() => void> {
+  const disposer = getInvariantRegistry(ctx).register(PACKAGE_NAME, install)
+  // Preserve the asynchronous plugin contract after synchronous registration.
+  await Promise.resolve(disposer)
+  return disposer
+}
+
+export { apply, inject, name }

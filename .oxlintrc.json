@@ -1,8 +1,23 @@
 {
-  "plugins": [],
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
   "categories": {
-    "correctness": "off"
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "restriction": "error",
+    "style": "error"
   },
+  "plugins": [
+    "import",
+    "typescript",
+    "node",
+    "unicorn",
+    "vitest",
+    "promise",
+    "eslint",
+    "oxc"
+  ],
   "options": {
     "reportUnusedDisableDirectives": "warn",
     "typeAware": true
@@ -13,43 +28,60 @@
   "ignorePatterns": [
     "**/lib/**",
     "**/node_modules/**",
+    "tests/fixtures/**",
+    "packages/*/tests/fixtures/**",
     "**/*.js",
     "**/*.mjs",
     "**/*.config.ts"
   ],
-  "overrides": [
-    {
-      "files": [
-        "src/**/*.ts",
-        "tests/**/*.ts"
-      ],
-      "rules": {
-        "no-var": "error",
-        "prefer-const": "error",
-        "prefer-rest-params": "error",
-        "prefer-spread": "error",
-        "no-array-constructor": "error",
-        "no-unused-expressions": "error",
-        "no-unused-vars": [
-          "error",
-          {
-            "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^_",
-            "caughtErrorsIgnorePattern": "^_"
-          }
-        ],
-        "typescript/no-deprecated": "error",
-        "typescript/no-dynamic-delete": "error",
-        "typescript/no-explicit-any": "error",
-        "typescript/no-floating-promises": "error",
-        "typescript/no-misused-promises": "error",
-        "unicorn/no-useless-fallback-in-spread": "off",
-        "unicorn/no-useless-spread": "off",
-        "no-void": "off"
-      },
-      "plugins": [
-        "typescript"
-      ]
-    }
-  ]
+  "rules": {
+    "no-inline-comments": "off", // Pedantic
+    "typescript/prefer-readonly-parameter-types": "off", // Pedantic
+
+    // 与 typescript/prefer-optional-chain 冲突
+    "oxc/no-optional-chaining": "off", // Restriction
+    // 与 unicorn/prefer-spread 冲突
+    "oxc/no-rest-spread-properties": "off", // Restriction
+    // 与 promise/prefer-await-to-callbacks、unicorn/prefer-top-level-await 冲突
+    "oxc/no-async-await": "off", // Restriction
+    // 与 vitest/prefer-importing-vitest-globals 冲突
+    "vitest/no-importing-vitest-globals": "off", // Restriction
+    // 与 eslint/no-void、unicorn/no-typeof-undefined 冲突
+    "eslint/no-undefined": "off", // Restriction
+    "import/no-nodejs-modules": "off", // Restriction
+    "node/no-sync": "off", // Restriction
+
+    // 与 fmt.sortImports.ignoreCase 冲突
+    "sort-imports": ["error", { "ignoreDeclarationSort": true }], // Style
+    // 与 import/consistent-type-specifier-style 冲突
+    "no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }], // Style
+    // 与 import/no-default-export 冲突
+    "import/prefer-default-export": "off", // Style
+    // 与 import/no-default-export 冲突
+    "import/no-named-export": "off", // Style
+    "func-style": "off", // Style
+    "sort-keys": "off", // Style
+    // 与 eslint/no-ternary 冲突
+    "unicorn/prefer-ternary": "off", // Style
+    // 与 vitest/require-hook 冲突
+    "vitest/no-hooks": "off", // Style
+
+    "eslint/max-lines": [
+      "error",
+      {
+        "max": 350
+      }
+    ], // Style
+    "eslint/max-lines-per-function": [
+      "error",
+      {
+        "IIFEs": true,
+        "max": 120
+      }
+    ], // Style
+    "eslint/max-statements": [
+      "error",
+      60
+    ], // Style
+  }
 }

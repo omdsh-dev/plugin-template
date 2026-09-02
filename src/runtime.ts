@@ -4,12 +4,13 @@
  */
 
 import type { Context } from 'cordis'
-import { resolveConfig, type Config } from './config.ts'
+import type { Config } from './config.ts'
+import { resolveConfig } from './config.ts'
 
 /** Fakeable host boundary used by the minimal plugin behavior. */
-export interface PluginRuntime {
+interface PluginRuntime {
   /** Publish one informational message through the host. */
-  info(message: string): void
+  info: (message: string) => void
 }
 
 /**
@@ -17,7 +18,7 @@ export interface PluginRuntime {
  * @param ctx - Scoped plugin context.
  * @returns Host behavior used by the plugin implementation.
  */
-export function createPluginRuntime(ctx: Context): PluginRuntime {
+function createPluginRuntime(ctx: Context): PluginRuntime {
   return {
     info: message => { ctx.logger.info(message) },
   }
@@ -28,7 +29,9 @@ export function createPluginRuntime(ctx: Context): PluginRuntime {
  * @param ctx - Scoped plugin context; registrations must be owned by its effects.
  * @param config - Configuration resolved by Cordis from the exported schema.
  */
-export function apply(ctx: Context, config: Config): void {
+function apply(ctx: Context, config: Config): void {
   const runtime = createPluginRuntime(ctx)
   runtime.info(resolveConfig(config).message)
 }
+
+export { apply, createPluginRuntime, type PluginRuntime }
