@@ -2,18 +2,32 @@
   "name": "@your-scope/dsh-plugin-template",
   "description": "Standalone Cordis plugin template for DeepSeek Harness",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
-  "imports": {
-    "#src/*": "./src/*.ts"
-  },
   "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
   },
+  "license": "BSD-3-Clause",
+  "publishConfig": {
+    "access": "public"
+  },
+  "imports": {
+    "#src/*": "./src/*.ts"
+  },
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "lib/**/*.d.ts",
+    "lib/**/*.d.ts.map",
+    "cordis.patch.yml",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsdown --config-loader unrun --config tsdown.config.ts",
+    "fmt": "oxfmt --config .oxfmtrc.json --write src tests",
+    "fmt:check": "oxfmt --config .oxfmtrc.json --check src tests",
     "lint": "oxlint --config .oxlintrc.json --type-check --deny-warnings src tests",
+    "lint:fix": "oxlint --config .oxlintrc.json --type-check --deny-warnings --fix src tests",
     "test": "vitest run",
     "extract:patch": "node scripts/extract-patch.mjs",
     "patch:host": "bash scripts/patch.sh"
@@ -31,23 +45,16 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "lib/**/*.js",
-    "lib/**/*.js.map",
-    "lib/**/*.d.ts",
-    "lib/**/*.d.ts.map",
-    "cordis.patch.yml",
-    "README.md"
-  ],
-  "license": "BSD-3-Clause",
   "peerDependencies": {
     "cordis": "^4.0.0-rc.7",
     "schemastery": "^3.18.0"
   },
   "devDependencies": {
     "@cordisjs/plugin-loader": "^1.0.0-rc.5",
+    "@tsconfig/node24": "^24.0.5",
     "@types/node": "^22.20.0",
     "cordis": "^4.0.0-rc.7",
+    "oxfmt": "0.64.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
     "schemastery": "^3.18.0",

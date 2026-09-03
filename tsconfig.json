@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
     "target": "ES2024",
     "module": "ESNext",
