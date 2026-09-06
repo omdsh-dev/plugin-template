@@ -1,16 +1,16 @@
 {
   "name": "@your-scope/dsh-plugin-template",
   "description": "Standalone Cordis plugin template for DeepSeek Harness",
-  "version": "0.0.1",
-  "type": "module",
-  "packageManager": "pnpm@11.7.0",
-  "engines": {
-    "node": "^22.19.0 || >=24.0.0"
-  },
   "license": "BSD-3-Clause",
   "publishConfig": {
     "access": "public"
   },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "version": "0.0.1",
   "imports": {
     "#src/*": "./src/*.ts"
   },
@@ -22,18 +22,6 @@
     "cordis.patch.yml",
     "README.md"
   ],
-  "scripts": {
-    "build": "tsdown --config-loader unrun --config tsdown.config.ts",
-    "fmt": "oxfmt --config .oxfmtrc.json --write src tests",
-    "fmt:check": "oxfmt --config .oxfmtrc.json --check src tests",
-    "lint": "oxlint --config .oxlintrc.json --type-check --deny-warnings src tests",
-    "lint:fix": "oxlint --config .oxlintrc.json --type-check --deny-warnings --fix src tests",
-    "test": "vitest run",
-    "extract:patch": "node scripts/extract-patch.mjs",
-    "patch:host": "bash scripts/patch.sh"
-  },
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
@@ -44,6 +32,23 @@
       "default": "./lib/invariant.js"
     },
     "./package.json": "./package.json"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "build": "tsdown --config-loader unrun --config tsdown.config.ts",
+    "fmt": "oxfmt --config .oxfmtrc.json --write src tests",
+    "fmt:check": "oxfmt --config .oxfmtrc.json --check src tests",
+    "lint": "oxlint --config .oxlintrc.json --type-check --deny-warnings src tests",
+    "lint:fix": "oxlint --config .oxlintrc.json --type-check --deny-warnings --fix src tests",
+    "test": "vitest run",
+    "extract:patch": "node scripts/extract-patch.mjs",
+    "patch:host": "bash scripts/patch.sh"
   },
   "peerDependencies": {
     "cordis": "^4.0.0-rc.7",
@@ -62,10 +67,5 @@
     "typescript": "^6.0.3",
     "unrun": "^0.3.1",
     "vitest": "^4.1.8"
-  },
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
   }
 }

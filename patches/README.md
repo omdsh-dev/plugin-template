@@ -1,6 +1,6 @@
 # Patches
 
-`patches/` is a project-root directory for corrections only, never product code. It carries two kinds of patches:
+`patches/` is an optional project-root directory for corrections only, never product code. Create and keep it only when this plugin needs a dependency or DSH-host patch; otherwise omit the directory entirely. When present, it carries two kinds of patches:
 
 - **dependency patches**: exact-version pnpm patches for registry packages;
 - **DSH host patches**: self-contained diffs against the DSH host source.

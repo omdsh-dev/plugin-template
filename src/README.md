@@ -1,5 +1,7 @@
 # Source Layout
 
+> Template-only guidance. Keep this file in `plugin-template`; delete it from a target plugin before implementation is complete.
+
 The baseline source entries are:
 
 - `src/index.ts`: Loader-facing plugin namespace and public exports;

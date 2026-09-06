@@ -71,7 +71,7 @@ An id-targeted patch replaces the complete target `config`; restate every retain
 
 ## Document the package contract
 
-Update public JSDoc and the package README in the same change as configuration, defaults, errors, events, exports, or behavior. Document prerequisites, configuration, behavior, failure modes, lifecycle/disposal, composition, verification, distribution assumptions, model/token/cache effects when relevant, and durable limitations. Remove template teaching text once it no longer describes the plugin.
+Update public JSDoc and the package README in the same change as configuration, defaults, errors, events, exports, or behavior. Document prerequisites, configuration, behavior, failure modes, lifecycle/disposal, composition, verification, distribution assumptions, model/token/cache effects when relevant, and durable limitations. Remove template teaching text once it no longer describes the plugin, including deleting template-only `src/README.md` from the target repository before implementation is complete.
 
 Every exported function, class, type with non-obvious use, configuration field, and event needs concise contract documentation. Comments preserve behavior, ownership, timing, failure, and non-obvious rationale; they do not narrate implementation steps or tests.
 

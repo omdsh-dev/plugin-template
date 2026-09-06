@@ -26,11 +26,11 @@ grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors|li
   package.json src tests cordis.patch.yml README.md AGENTS.md tsconfig*.json scripts
 ```
 
-Review every match. This template does not permit repository-relative `link:`, `file:`, repository-external source, or repository-external project-reference paths. Registry packages and runtime host peers are package dependencies, not filesystem inputs; every consumer must resolve the ready-made build from the repository's own manifest and lockfile.
+Review every match. Also reject template-only `src/README.md` in a completed plugin repository; it belongs only in `plugin-template`. This template does not permit repository-relative `link:`, `file:`, repository-external source, or repository-external project-reference paths. Registry packages and runtime host peers are package dependencies, not filesystem inputs; every consumer must resolve the ready-made build from the repository's own manifest and lockfile.
 
 Confirm package name, version, description, license, repository metadata, Node engine, package manager, Cordis plugin id, invariant package name, bundle rows, README examples, and lockfile all describe the same package.
 
-If `pnpm-workspace.yaml` declares `patchedDependencies`, verify every project-root patch path exists under `patches/`, targets the exact installed version, has a documented reason, and is available during a clean install. A DSH host patch under `patches/` must be a self-contained diff with a documented pinned host snapshot, regenerated and applied through `scripts/extract-patch.mjs` and `scripts/patch.sh` (configured in `patches/host-patch.config.json`), and must not appear in the published package's `files`. If no patch is declared, `patches/` must contain guidance only.
+If `pnpm-workspace.yaml` declares `patchedDependencies`, verify every project-root patch path exists under `patches/`, targets the exact installed version, has a documented reason, and is available during a clean install. A DSH host patch under `patches/` must be a self-contained diff with a documented pinned host snapshot, regenerated and applied through `scripts/extract-patch.mjs` and `scripts/patch.sh` (configured in `patches/host-patch.config.json`), and must not appear in the published package's `files`. If no dependency or DSH-host patch is declared or planned, do not require `patches/` or patch-only scripts; their absence is the expected state.
 
 ## Run package verification
 

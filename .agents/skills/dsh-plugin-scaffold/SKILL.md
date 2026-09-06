@@ -20,14 +20,14 @@ Validate names before copying:
 
 ## Copy the source skeleton
 
-Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, temporary files, and package-manager stores. Do not use an unguarded recursive delete. Preserve the package's actual build path:
+Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, `src/README.md`, temporary files, and package-manager stores. `src/README.md` is template-only source-layout guidance: it remains in `plugin-template` but must not exist in the completed target plugin. If a copy step includes it temporarily, delete it before implementation is declared complete. Do not use an unguarded recursive delete. Preserve the package's actual build path:
 
 - development/CI and release: the repository's configured build command compiles the declared runtime faces directly from source, while the configured Oxlint command performs type-aware static analysis over source and tests;
 - if declaration assembly, closure wrapping, generated assets, or another artifact verifier exists, keep those stages explicit and run the final artifact gate before packing.
 
 The package's static-analysis configuration and local documentation must be updated together when a new plugin deliberately replaces the sample owners or artifact faces.
 
-Preserve the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, optional snapshot fixtures, and optional dependency or DSH-host patch guidance. Do not copy product-specific directories unless the planned plugin owns those capabilities.
+Preserve only the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, and optional snapshot fixtures. Patch support is conditional: when the handoff says the plugin needs no dependency or DSH-host patch, do not copy `patches/`, patch-only scripts, or patch-only guidance; also remove patch-only manifest scripts from the new package. When a patch is planned, copy the generic guidance and the patch tooling it needs, then add only target-owned patch files. Do not copy product-specific directories or patches unless the planned plugin owns those capabilities.
 
 Preserve the pinned Node, pnpm, Cordis, TypeScript, Vitest, and tsdown ranges from the current template unless an explicitly recorded host compatibility decision requires a coordinated update. Do not replace them with `latest`.
 
