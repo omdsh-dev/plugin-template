@@ -131,6 +131,28 @@ For a model-source form, make the fallback target explicit. If session mode retr
 
 When synchronizing the external snapshot into local state, do not overwrite dirty user input on every notification. Define behavior for initial load, clean external updates, dirty drafts, save success, and reset.
 
+## Receiver-safe observables
+
+DSH host services expose instance methods, not bound callbacks: the settings scope's `getSnapshot()` and `subscribe()` read their own state through `this`. React calls the callbacks it receives as bare functions, so `useSyncExternalStore(scope.subscribe, scope.getSnapshot)` throws during render (`Cannot read properties of undefined`). A section entry that crashes while rendering abdicates, so its nav row disappears instead of showing an error.
+
+Wrap the scope once and hand React the wrapper:
+
+~~~ts
+export function settingsScopeSource<T>(scope: SettingsScope<T>) {
+  return {
+    getSnapshot: () => scope.getSnapshot(),
+    subscribe: (listener: () => void) => scope.subscribe(listener),
+  }
+}
+~~~
+
+~~~tsx
+const source = useMemo(() => settingsScopeSource(scope), [scope])
+const snapshot = useSyncExternalStore(source.subscribe, source.getSnapshot)
+~~~
+
+Model compatibility contracts with method syntax, and test the binding with a class-shaped scope (methods on the prototype): an object of arrow properties keeps its receiver by construction and cannot catch this bug.
+
 ## Client contracts
 
 Prefer official DSH client and slot types when exported. If a compatibility contract is necessary, keep it in settings.ts or a dedicated contract owner and model only methods actually used. Do not duplicate a broad DSH API surface in the page file.
@@ -191,6 +213,7 @@ Client tests should cover settings section registration/disposal, locale lifecyc
 - React is externalized as the host expects;
 - settings state and form draft behavior are explicit;
 - invalid numeric input cannot persist as NaN;
+- host scope methods are bound before React receives them;
 - the artifact loads through ModuleLoader;
 - focused tests and package checks pass;
 - changed files and any unverified GUI/profile step are reported separately.
