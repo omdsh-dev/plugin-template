@@ -63,7 +63,7 @@ Turtle UI 的 chat、components、extension 目录描述的是那个产品,不�
 ## 创建你的插件
 
 1. 在 `package.json`、`src/index.ts`、`src/config.ts`、`src/runtime.ts`、`src/invariant.ts`、`tests/plugin.spec.ts`、`cordis.patch.yml`、TypeScript 包元数据、`README.md` 与 `AGENTS.md` 中替换包身份。
-2. 只在上述身份属主中替换模板包名 `@your-scope/dsh-plugin-template` 和插件 id。不要对 `.agents/skills/` 做全局替换;它的通用示例与标记检查必须保持可复用。
+2. 在替换身份前先明确完整的 npm 包名。包名可以是 scoped 或 unscoped（例如 `comem`），不要默认继承模板的 `@your-scope/dsh-` 前缀。将选定包名原样用于 `package.json`、bundle 行、invariant 注册、exports、测试和文档。只在上述身份属主中替换模板包名 `@your-scope/dsh-plugin-template` 和插件 id。不要对 `.agents/skills/` 做全局替换;它的通用示例与标记检查必须保持可复用。
 3. 更新 `description`、`LICENSE` 与 `cordis.patch.yml`。
 4. 只把实现用到的 DSH 宿主服务加入包契约与组合补丁。源码和构建依赖必须能从本仓库的 `node_modules` 解析。
 5. 当包拥有权威事件或可变数据关系时,替换空的 invariant installer。
@@ -128,7 +128,7 @@ release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费�
 
 DSH 宿主可以把本包安装进 profile,并用 `cordis.patch.yml` 覆盖自身的运行时组合。该宿主集成刻意位于本仓库的构建与测试输入之外。补丁只组合插件;它不修改宿主源码、编译器设置、构建脚本或 catalog。
 
-invariant companion 通过窄本地接口使用宿主的 `invariants` 服务。这让包构建不依赖宿主私有源码包,同时保留 DSH profile 使用的运行时注册。
+invariant companion 通过窄本地接口使用宿主的 `invariants` 服务。这让包构建不依赖宿主私有源码包,同时保留启用了 invariants 的 DSH profile 使用的运行时注册。只有在消费 profile 提供该服务时才插入 companion 行；普通 `dsh-base`/`dsh-web-app` profile 应省略这一行，否则 entry 会一直 pending。
 
 ## 插件形态
 

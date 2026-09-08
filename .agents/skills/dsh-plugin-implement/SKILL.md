@@ -59,7 +59,7 @@ Anything added to a model request must be reconstructable from the session log. 
 
 ## Implement the invariant companion
 
-Keep the exact manifest package name in `src/invariant.ts` and export it as `./invariant`. An installer checks an authoritative event/data relationship owned by this package. It must not assert service presence, method presence, plugin metadata, effects, or fixed examples. When no relationship exists, retain a concise package-specific `No runtime invariant:` explanation instead of inventing a check.
+Keep the exact manifest package name in `src/invariant.ts` and export it as `./invariant`. The manifest name may be scoped or unscoped; do not add an `@scope/dsh-` prefix by convention. Synchronize the exact selected name across `package.json`, `cordis.patch.yml`, invariant registration, exports, tests, and documentation. An installer checks an authoritative event/data relationship owned by this package. It must not assert service presence, method presence, plugin metadata, effects, or fixed examples. When no relationship exists, retain a concise package-specific `No runtime invariant:` explanation instead of inventing a check.
 
 Non-empty installers need a positive path and a deliberately invalid negative path through the real invariant service. Ensure companion registration disposes with its fiber.
 

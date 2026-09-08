@@ -13,10 +13,11 @@ Require `target`, `packageName`, `pluginId`, description, plugin form, dependenc
 
 Validate names before copying:
 
-- npm package name follows the selected scope policy and contains no unresolved placeholder;
+- npm package name is valid under the explicitly selected scoped or unscoped policy, contains no unresolved placeholder, and receives no implicit `@scope/dsh-` prefix;
 - Cordis plugin and row ids are stable lowercase kebab-case;
 - the package name and plugin id are distinct concepts and need not be identical;
-- the target is outside the template and DSH checkout.
+- the target is outside the template and DSH checkout;
+- the chosen package name is used verbatim in package metadata, bundle rows, invariant registration, documentation, and tests; never add or remove a scope or `dsh-` prefix without an explicit plan decision.
 
 ## Copy the source skeleton
 
@@ -39,7 +40,7 @@ Update identity deliberately in these owners:
 - `src/index.ts`: module name, exported `name`, and Loader-facing exports;
 - the source, configuration, invariant, contract, and focused test owners named by the target package;
 - `tsconfig*.json`, `tsdown*.ts`, and `scripts/*` when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;
-- the package's actual bundle patch and composition metadata when the package contributes a profile bundle;
+- the package's actual bundle patch and composition metadata when the package contributes a profile bundle; insert an invariant companion row only when the target profile provides its required `invariants` service;
 - `README.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
 
 Search afterward for all template markers in identity owners, excluding this reusable skill suite:

@@ -33,7 +33,7 @@ Apply these rules before installation:
 
 - Bundle layers are applied in the order listed by `dsh.profile.bundles`; profile, home, command-line, and launcher patches may override them later.
 - An id-targeted patch replaces that row's complete `config` value. Restate every field the plugin expects to retain; never assume deep merge.
-- `insert` adds rows. Use stable, deployment-local ids and exact npm package names.
+- `insert` adds rows. Use stable, deployment-local ids and the exact manifest package name; it may be scoped or unscoped. For a companion row, derive the subpath from that name (for example, `<packageName>/invariant`) rather than assuming an `@scope/dsh-` prefix, and insert it only when the selected profile provides the companion's required service.
 - A patch targeting an absent id warns on stderr rather than proving the intended override; inspect the effective tree and treat the warning as failed composition unless absence is intentional.
 - `!!js` is permitted only inside plugin `config`. Loader metadata such as `id`, `name`, and `disabled` stays static.
 - Keep credentials out of patches; use credential references or environment-variable names.
@@ -71,7 +71,7 @@ dsh --profile <profile> --dump-default-config
 dsh --profile <profile> --dump-config
 ```
 
-Confirm the expected bundle source comment, inserted rows, overridden full configuration, ordering, invariant companion, and absence of unmatched-target warnings. Inspect the profile `package.json` only as supporting evidence; the effective dump owns the assembled result.
+Confirm the expected bundle source comment, inserted rows, overridden full configuration, ordering, the invariant companion when its required service is present (or its intentional absence otherwise), and absence of unmatched-target warnings. Inspect the profile `package.json` only as supporting evidence; the effective dump owns the assembled result.
 
 ## Prove activation
 

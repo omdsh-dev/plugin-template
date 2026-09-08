@@ -9,7 +9,7 @@ This skill coordinates the complete standalone-plugin workflow. It is guidance, 
 
 ## Scope
 
-Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package-owned invariant companion and an optional profile bundle patch. A package may be host-only, client-only, or split across host and browser faces; record the actual owners rather than imposing one layout. The repository-local contract reference below is the source for the conventions this template can verify.
+Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package-owned invariant companion and an optional profile bundle patch. A package may be host-only, client-only, or split across host and browser faces; record the actual owners rather than imposing one layout. The repository-local contract reference below is the source for the conventions this template can verify. An invariant companion is optional at composition time: include its bundle row only when the selected profile provides the `invariants` service.
 
 Read the applicable project-root files before implementation:
 
@@ -30,7 +30,7 @@ Establish these facts before editing. Ask one concise batch of questions when th
 - intended distribution channel: local checkout, Git, npm, or not yet selected;
 - required host peers and their provider installation order;
 
-Do not invent a package scope, target path, credential source, public default, or publishing destination.
+Do not invent a package scope, target path, credential source, public default, or publishing destination. A package name may be scoped or unscoped; use the explicitly selected name and never infer an `@scope/dsh-` prefix.
 
 ## Shared handoff
 

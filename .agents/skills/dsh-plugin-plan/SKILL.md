@@ -13,7 +13,7 @@ Read the project-root files `README.md`, `AGENTS.md`, and `docs/dsh-plugin-contr
 
 ## Confirm the request
 
-Require an objective, observable outcome, target or planned repository location, package name, plugin id, intended consumer/profile, and distribution assumption. Ask once for missing decisions. Do not infer a public scope, default behavior, credential source, security policy, or repository destination.
+Require an objective, observable outcome, target or planned repository location, package name, plugin id, intended consumer/profile, and distribution assumption. The package name must be an explicit valid npm name; it may be scoped or unscoped, and no `@scope/dsh-` prefix is implicit. Ask once for missing decisions. Do not infer a public scope, default behavior, credential source, security policy, or repository destination.
 
 ## Choose the plugin form
 

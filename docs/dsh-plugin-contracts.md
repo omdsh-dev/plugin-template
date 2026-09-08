@@ -14,6 +14,8 @@ A function plugin exports `name`, `inject`, `Config`, and `apply` as one ESM nam
 
 Required Cordis services belong in `inject`. Optional services are read through named lookup and must tolerate absence or attach and detach through a scoped injection. Configuration is a serializable Schemastery schema; deployment-varying choices are fields, not hidden constants.
 
+Package identity is explicit: an npm package name may be scoped or unscoped, and the template does not require an `@scope/dsh-` prefix. Keep the selected package name exact in `package.json`, bundle rows, invariant registration, exports, tests, and documentation; the package name and Cordis plugin ID remain separate concepts.
+
 ## Scalable repository structure
 
 The package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, tests, snapshots, and optional patch files in explicit owners appropriate to the package; do not force a fixed directory layout onto every plugin.
@@ -26,7 +28,7 @@ Every listener, registry entry, timer, watcher, child process, and callback regi
 
 ## Invariant companion
 
-Every package may expose `./invariant` as a separate function plugin. Its installer checks an authoritative event or data relationship owned by the package. An empty installer is valid only when the package owns no observable relationship; explain that reason in the source. The companion can use the host's `invariants` service through the narrow local interface in `src/invariant.ts`.
+Every package may expose `./invariant` as a separate function plugin. Its installer checks an authoritative event or data relationship owned by the package. An empty installer is valid only when the package owns no observable relationship; explain that reason in the source. The companion can use the host's `invariants` service through the narrow local interface in `src/invariant.ts`. Insert the companion's bundle row only when the consuming profile provides that service; ordinary `dsh-base`/`dsh-web-app` profiles may omit the row, because an injected `invariants` service that is absent leaves the entry pending.
 
 ## Bundle composition
 

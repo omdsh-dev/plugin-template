@@ -126,10 +126,7 @@ For each runtime import, classify the manifest entry:
 - provider package: a deliberate package/profile input, never a hidden bundled
   copy.
 
-Keep the target's actual package scope and host package names. The template's
-`cordis`, `schemastery`, and loader names are examples for this repository; a
-DSH package using `@deepseek-ai/*` names must keep the names required by its
-installed host contract.
+Keep the target's actual package name, intentional scope, and host package names. Both scoped and unscoped npm names are valid; never add a scope or `dsh-` prefix merely to match the template. The template's `cordis`, `schemastery`, and loader names are examples for this repository; a DSH package using `@deepseek-ai/*` names must keep the names required by its installed host contract. Use an unscoped name verbatim in package metadata, bundle rows, and invariant registration (for example, `comem` and `comem/invariant`).
 
 ### pnpm and lockfile
 
