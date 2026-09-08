@@ -7,6 +7,10 @@ description: Use when a standalone DSH plugin adds or changes browser UI copy an
 
 This skill adds localization to a plugin that owns browser UI. It covers the ordinary plugin that ships its own `zh`/`en` copy and the separate language-pack plugin that contributes an external language. It is guidance, not permission to add a language, copy, dependency, or public UI contract that the product does not need.
 
+## Coordinate with [dsh-plugin-client](.agents/skills/dsh-plugin-client/SKILL.md)
+
+When the feature also implements a browser client, load [dsh-plugin-client](.agents/skills/dsh-plugin-client/SKILL.md) alongside this skill. dsh-plugin-client decides the minimal file boundary, JSX/React ModuleLoader compatibility, settings form structure, and artifact smoke tests. This skill decides the locale namespace, dictionary shape, translation props, fallback rules, and locale lifecycle evidence. Keep one locale owner and one namespace; do not split dictionaries or registrations merely because the client was split into multiple files.
+
 ## Read the owners first
 
 Run this skill from the plugin repository root. Read `AGENTS.md`, `README.md`, `docs/dsh-plugin-contracts.md`, `package.json`, the actual browser entry, its slot contracts, the focused component tests, and the applicable `cordis.patch.yml`. If the package has no browser face or no product-visible copy, stop: do not add a locale dependency for host, model, user, wire, or internal data.
