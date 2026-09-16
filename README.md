@@ -56,7 +56,7 @@ The template's sample skeleton still uses `src/index.ts`, `src/config.ts`, `src/
 
 1. Replace package identity in `package.json`, the Loader owner, configuration/runtime/invariant owners, focused test owners, bundle metadata, TypeScript metadata, `README.md`, and `AGENTS.md` as applicable. The sample skeleton names these owners explicitly; a deliberate replacement must update the package's local documentation and static-analysis configuration too.
 2. Choose and record the exact npm package name before replacing identity. It may be scoped or unscoped (for example, `comem`); do not assume the template's `@your-scope/dsh-` prefix. Use the selected name verbatim in `package.json`, bundle rows, invariant registration, exports, tests, and documentation. Replace the template package name `@your-scope/dsh-plugin-template` and plugin ids only in those identity owners. Do not perform a global replacement inside `.agents/skills/`; its generic examples and marker checks must remain reusable.
-3. Update `description`, `LICENSE`, and `cordis.patch.yml`.
+3. Update `description`, `keywords`, `LICENSE`, and `cordis.patch.yml`.
 4. Add only the DSH host services used by the implementation to the package contract and composition patch. Keep source and build dependencies resolvable from this repository's `node_modules`; host-provided runtime APIs remain consumer-supplied peers.
 5. Replace the empty invariant installer when the package owns an authoritative event or mutable data relationship.
 6. Implement activation and host-boundary behavior in the actual runtime/service owners, moving cohesive capabilities into project-specific modules as needed. Keep `src/index.ts` limited to Loader metadata and public re-exports when that matches the package, and scope registrations through `ctx.effect()`, `ctx.on()`, or registry disposers.
@@ -93,7 +93,7 @@ pnpm test
 pnpm run build
 ```
 
-`lint` runs Oxlint with type-aware analysis and denies warnings for the configured source and test projects. `build` runs the configured source-to-artifact pipeline, including any declaration assembly or final artifact verifier owned by the package, and emits ready-to-pack output; it does not run an install-time lifecycle build.
+`lint` runs Oxlint with type-aware analysis and denies warnings for the configured source and test projects. `build` runs the configured source-to-artifact pipeline, including any declaration assembly or final artifact verifier owned by the package, and emits ready-to-pack output; it does not run an install-time lifecycle build. Extra arguments are passed through to tsdown, so `pnpm run build --sourcemap` emits source maps for local debugging; the default `build` emits none.
 
 The release artifact is built from the configured source owners before packing. Profile or consumer installation uses the ready-made `lib/` output and does not run `prepare`; `pnpm pack --dry-run --json` verifies the final archive contents.
 

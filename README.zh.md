@@ -64,7 +64,7 @@ Turtle UI 的 chat、components、extension 目录描述的是那个产品,不�
 
 1. 在 `package.json`、`src/index.ts`、`src/config.ts`、`src/runtime.ts`、`src/invariant.ts`、`tests/plugin.spec.ts`、`cordis.patch.yml`、TypeScript 包元数据、`README.md` 与 `AGENTS.md` 中替换包身份。
 2. 在替换身份前先明确完整的 npm 包名。包名可以是 scoped 或 unscoped（例如 `comem`），不要默认继承模板的 `@your-scope/dsh-` 前缀。将选定包名原样用于 `package.json`、bundle 行、invariant 注册、exports、测试和文档。只在上述身份属主中替换模板包名 `@your-scope/dsh-plugin-template` 和插件 id。不要对 `.agents/skills/` 做全局替换;它的通用示例与标记检查必须保持可复用。
-3. 更新 `description`、`LICENSE` 与 `cordis.patch.yml`。
+3. 更新 `description`、`keywords`、`LICENSE` 与 `cordis.patch.yml`。
 4. 只把实现用到的 DSH 宿主服务加入包契约与组合补丁。源码和构建依赖必须能从本仓库的 `node_modules` 解析。
 5. 当包拥有权威事件或可变数据关系时,替换空的 invariant installer。
 6. 在 `src/runtime.ts` 实现激活与宿主边界行为,按需把内聚能力移入项目专属的 `src/<feature>/` 目录。保持 `src/index.ts` 只含 Loader 元数据与公共 re-export,并通过 `ctx.effect()`、`ctx.on()` 或 registry disposer 限定注册范围。
@@ -101,7 +101,7 @@ pnpm test
 pnpm run build
 ```
 
-`pnpm install` 只解析本包声明的依赖。`lint` 使用启用类型感知分析的 Oxlint 并拒绝警告,检查配置的源码与测试工程。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。
+`pnpm install` 只解析本包声明的依赖。`lint` 使用启用类型感知分析的 Oxlint 并拒绝警告,检查配置的源码与测试工程。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。额外参数会透传给 tsdown,因此本地调试可用 `pnpm run build --sourcemap` 产出 source map;默认 `build` 不产 map。
 
 release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费现成的 `lib/` 输出，不运行 `prepare`；使用 `pnpm pack --dry-run --json` 检查最终归档内容。
 

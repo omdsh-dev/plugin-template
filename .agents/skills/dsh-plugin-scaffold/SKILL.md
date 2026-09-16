@@ -36,7 +36,7 @@ Preserve the pinned Node, pnpm, Cordis, TypeScript, Vitest, and tsdown ranges fr
 
 Update identity deliberately in these owners:
 
-- `package.json`: `name`, `description`, optional repository metadata, exports/files, and `private` according to the distribution plan;
+- `package.json`: `name`, `description`, `keywords`, `license`, optional repository metadata, exports/files, and `private` according to the distribution plan;
 - `src/index.ts`: module name, exported `name`, and Loader-facing exports;
 - the source, configuration, invariant, contract, and focused test owners named by the target package;
 - `tsconfig*.json`, `tsdown*.ts`, and `scripts/*` when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;

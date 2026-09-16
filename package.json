@@ -1,6 +1,14 @@
 {
   "name": "@your-scope/dsh-plugin-template",
   "description": "Standalone Cordis plugin template for DeepSeek Harness",
+  "keywords": [
+    "cordis",
+    "cordis-plugin",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "plugin-template"
+  ],
   "license": "BSD-3-Clause",
   "publishConfig": {
     "access": "public"
@@ -15,10 +23,7 @@
     "#src/*": "./src/*.ts"
   },
   "files": [
-    "lib/**/*.js",
-    "lib/**/*.js.map",
-    "lib/**/*.d.ts",
-    "lib/**/*.d.ts.map",
+    "lib",
     "cordis.patch.yml",
     "README.md"
   ],
@@ -33,8 +38,8 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
