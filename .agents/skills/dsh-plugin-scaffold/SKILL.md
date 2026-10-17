@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-scaffold
-description: Use after dsh-plugin-plan to create a new standalone DSH plugin repository from this self-contained template. Copy only source-controlled template files, replace package and Cordis identifiers, align registry dependencies and local TypeScript settings, generate the lockfile, and prove the unchanged skeleton before behavior is added.
+description: Create and baseline-verify a new standalone DSH plugin repository from this template: identity, dependencies, metadata, lockfile, lint, tests, build, and pack.
 ---
 
 # Scaffold a Plugin Repository
@@ -9,7 +9,7 @@ This skill creates a clean standalone repository from the project-root `README.m
 
 ## Required handoff
 
-Require `target`, `packageName`, `pluginId`, description, plugin form, dependency matrix, target profile, invariant decision, distribution assumption, and the template source directory. Default the source to the active repository root only when its `package.json` and `README.md` match this template. If the target exists and is non-empty, ask whether this is an audit/merge task; never replace it as scaffolding.
+Require `target`, `packageName`, `pluginId`, description, plugin form, dependency matrix, target profile, `enginesDsh`, display metadata, browser face, distribution assumption, and the template source directory. Default the source to the active repository root only when its `package.json` and `README.md` match this template. If the target exists and is non-empty, ask whether this is an audit/merge task; never replace it as scaffolding.
 
 Validate names before copying:
 
@@ -17,38 +17,39 @@ Validate names before copying:
 - Cordis plugin and row ids are stable lowercase kebab-case;
 - the package name and plugin id are distinct concepts and need not be identical;
 - the target is outside the template and DSH checkout;
-- the chosen package name is used verbatim in package metadata, bundle rows, invariant registration, documentation, and tests; never add or remove a scope or `dsh-` prefix without an explicit plan decision.
+- the chosen package name is used verbatim in package metadata, bundle rows, display metadata, documentation, and tests; never add or remove a scope or `dsh-` prefix without an explicit plan decision.
 
 ## Copy the source skeleton
 
-Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, `src/README.md`, temporary files, and package-manager stores. `src/README.md` is template-only source-layout guidance: it remains in `plugin-template` but must not exist in the completed target plugin. If a copy step includes it temporarily, delete it before implementation is declared complete. Do not use an unguarded recursive delete. Preserve the package's actual build path:
+Copy source-controlled template files while excluding `.git/`, `node_modules/`, `lib/`, `src/LAYOUT.md`, temporary files, and package-manager stores. `src/LAYOUT.md` is template-only source-layout guidance: it remains in `plugin-template` but must not exist in the completed target plugin. If a copy step includes it temporarily, delete it before implementation is declared complete. Do not use an unguarded recursive delete. Preserve the package's actual build path:
 
 - development/CI and release: the repository's configured build command compiles the declared runtime faces directly from source, while the configured Oxlint command performs type-aware static analysis over source and tests;
 - if declaration assembly, closure wrapping, generated assets, or another artifact verifier exists, keep those stages explicit and run the final artifact gate before packing.
 
 The package's static-analysis configuration and local documentation must be updated together when a new plugin deliberately replaces the sample owners or artifact faces.
 
-Preserve only the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, focused tests, and optional snapshot fixtures. Patch support is conditional: when the handoff says the plugin needs no dependency or DSH-host patch, do not copy `patches/`, patch-only scripts, or patch-only guidance; also remove patch-only manifest scripts from the new package. When a patch is planned, copy the generic guidance and the patch tooling it needs, then add only target-owned patch files. Do not copy product-specific directories or patches unless the planned plugin owns those capabilities.
+Preserve only the scalable skeleton that the target actually needs: source/runtime faces, configuration and contract owners, display metadata, focused tests, and optional snapshot fixtures. Patch support is conditional: when the handoff says the plugin needs no dependency or DSH-host patch, do not copy `patches/`, patch-only scripts, or patch-only guidance; also remove patch-only manifest scripts from the new package. When a patch is planned, copy the generic guidance and the patch tooling it needs, then add only target-owned patch files. Do not copy product-specific directories or patches unless the planned plugin owns those capabilities.
 
-Preserve the pinned Node, pnpm, Cordis, TypeScript, Vitest, and tsdown ranges from the current template unless an explicitly recorded host compatibility decision requires a coordinated update. Do not replace them with `latest`.
+Preserve the pinned Node, pnpm, Cordis, Schemastery, TypeScript, Vitest, tsdown, Oxlint, and Oxfmt ranges from the current template unless an explicitly recorded host compatibility decision requires a coordinated update. Do not replace them with `latest`.
 
 ## Replace template identity
 
 Update identity deliberately in these owners:
 
-- `package.json`: `name`, `description`, `keywords`, `license`, optional repository metadata, exports/files, and `private` according to the distribution plan;
+- `package.json`: `name`, `description`, `keywords`, `license`, optional repository metadata, `engines.dsh`, `dsh` manifest fields, exports/files, and `private` according to the distribution plan;
 - `src/index.ts`: module name, exported `name`, and Loader-facing exports;
-- the source, configuration, invariant, contract, and focused test owners named by the target package;
+- the source, configuration, contract, display, and focused test owners named by the target package;
 - `tsconfig*.json`, `tsdown*.ts`, and `scripts/*` when present: local compiler, bundle, declaration, generated-asset, and artifact-contract topology;
-- the package's actual bundle patch and composition metadata when the package contributes a profile bundle; insert an invariant companion row only when the target profile provides its required `invariants` service;
-- `README.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
+- the package's actual bundle patch and composition metadata when the package contributes a profile bundle;
+- `src/assets/locale/*.json` and `src/assets/icon.svg`: display title, description, and artwork, exposed through the public `./locale/*.json` and `./icon` subpaths;
+- `README.md`, `README.zh.md`, `AGENTS.md`, and `LICENSE`: package-specific contract and ownership rather than template instructions.
 
 Search afterward for all template markers in identity owners, excluding this reusable skill suite:
 
 ```sh
 grep -R -n -E '@your-scope/dsh-plugin-template|plugin-template|Plugin Authors' \
   --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=.agents \
-  package.json src tests scripts cordis.patch.yml README.md AGENTS.md tsconfig*.json
+  package.json src tests scripts cordis.patch.yml README.md README.zh.md AGENTS.md tsconfig*.json
 ```
 
 Review each match; do not suppress a remaining load-visible placeholder because it appears in documentation. Generic references inside `.agents/skills/` are intentionally not identity owners.
@@ -61,11 +62,10 @@ For every planned host API import, update these together:
 2. a reachable registry development dependency when the package must run type-aware static analysis or tests against it;
 3. local TypeScript settings and package declarations;
 4. the test runner configuration and any module-loader fixture;
-5. `inject` and the package's bundle patch when the service must be composed.
+5. `inject` and the package's bundle patch when the service must be composed;
+6. the display and client manifest fields when the package gains a visible entry or browser face.
 
-Host-provided runtime APIs belong in `peerDependencies` when the consumer supplies them and need a reachable declared development source when the repository builds or tests against them. The consumer must provide required peers before activation; do not move a host peer into `dependencies` or `bundledDependencies` merely to make installation appear self-contained. Only a package that owns and provides a runtime may bundle it.
-
-Use `dependencies` for libraries bundled or required by the plugin at runtime. Keep optional peers explicit. This template forbids local `link:` and `file:` dependencies and forbids project references that leave the repository. Every fresh clone must resolve its build graph from its own manifest and lockfile.
+Apply the dependency classification in `docs/dsh-plugin-contracts.md#dependencies` when editing the manifest. Keep optional peers explicit, and keep the repository's own build graph resolvable from its manifest and lockfile.
 
 ## Establish repository state
 
@@ -87,6 +87,6 @@ pnpm pack --dry-run --json
 
 If the execution sandbox, network, native build, or package-manager state blocks one command, preserve its exact failure and retry unchanged only through the environment's approved narrow escalation path. Do not rewrite dependencies to hide an environmental denial.
 
-Scaffolding is complete only when all placeholders are gone, package exports and bundle rows use the intended names, dependency/type-resolution records agree, generated files are ignored, and the baseline commands pass or have a concrete external blocker reported as unverified.
+Scaffolding is complete only when all placeholders are gone, package exports, display resources, and bundle rows use the intended names, dependency/type-resolution records agree, generated files are ignored, and the baseline commands pass or have a concrete external blocker reported as unverified.
 
 Return the updated shared handoff and exact commands run. Do not describe the scaffold as complete when behavior code was added before the baseline was proven.

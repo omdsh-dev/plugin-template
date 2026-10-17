@@ -1,21 +1,23 @@
 ---
 name: dsh-plugin-i18n
-description: Use when a standalone DSH plugin adds or changes browser UI copy and needs typed locale dictionaries, namespace registration, translated component props, or optional language-pack contributions. Do not use for host-only plugins or user, model, protocol, and other non-UI data.
+description: Localize DSH browser UI with typed dictionaries, namespace registration, locale props, fallback, and disposal evidence. Use only for visible client copy.
 ---
 
 # Localize a DSH Plugin
 
 This skill adds localization to a plugin that owns browser UI. It covers the ordinary plugin that ships its own `zh`/`en` copy and the separate language-pack plugin that contributes an external language. It is guidance, not permission to add a language, copy, dependency, or public UI contract that the product does not need.
 
-## Coordinate with [dsh-plugin-client](.agents/skills/dsh-plugin-client/SKILL.md)
+## Coordinate with dsh-plugin-client
 
-When the feature also implements a browser client, load [dsh-plugin-client](.agents/skills/dsh-plugin-client/SKILL.md) alongside this skill. dsh-plugin-client decides the minimal file boundary, JSX/React ModuleLoader compatibility, settings form structure, and artifact smoke tests. This skill decides the locale namespace, dictionary shape, translation props, fallback rules, and locale lifecycle evidence. Keep one locale owner and one namespace; do not split dictionaries or registrations merely because the client was split into multiple files.
+When the feature also implements a browser client, load `dsh-plugin-client` at `.agents/skills/dsh-plugin-client/SKILL.md` alongside this skill. dsh-plugin-client decides the minimal file boundary, JSX/React ModuleLoader compatibility, settings form structure, and artifact smoke tests. This skill decides the locale namespace, dictionary shape, translation props, fallback rules, and locale lifecycle evidence. Keep one locale owner and one namespace; do not split dictionaries or registrations merely because the client was split into multiple files.
 
 ## Read the owners first
 
 Run this skill from the plugin repository root. Read `AGENTS.md`, `README.md`, `docs/dsh-plugin-contracts.md`, `package.json`, the actual browser entry, its slot contracts, the focused component tests, and the applicable `cordis.patch.yml`. If the package has no browser face or no product-visible copy, stop: do not add a locale dependency for host, model, user, wire, or internal data.
 
 Keep every source and documentation input below the repository root. Do not read a DSH checkout or another plugin as an implicit source. Use installed package declarations and this repository's manifest to inspect host APIs. Preserve the plugin's function or service Loader form.
+
+Plugin display metadata in the exported `./locale/*.json` resources (this template keeps the physical files in `src/assets/locale/`; `meta.title` and `meta.description`) is a Host-facing channel read without activating the plugin. It is not the client UI dictionary and must not be used as the feature namespace. A browser face declares `dsh.client` and exports `./client`; the client build and ModuleLoader artifact are owned by `dsh-plugin-client`.
 
 Record these facts before editing:
 
@@ -209,7 +211,7 @@ Do not manually call another plugin's disposer, mutate the locale registry's int
 For a browser plugin, inspect the current client package contract before changing the manifest:
 
 1. Add the locale package as a runtime peer when the host supplies the locale service, and as a development dependency when source typechecking or tests import it.
-2. Add a dynamic client package-name edge only when the bundle's module graph requires it; do not use client metadata to replace Cordis service injection.
+2. Add a dynamic client package-name edge only when the bundle's module graph requires it; `dsh.client.inject` edges and Cordis service injection are different declarations, and `dsh.client.external` lists exact non-baseline module requests.
 3. Keep the browser entry and locale dictionary in the package's published `files` list and ensure the built client entry exports/types remain complete.
 4. Keep host-only dependencies and browser-only dependencies on their actual build faces; never pull a browser locale runtime into a host entry just to share types.
 5. Update the profile patch only when the client package must be composed into a profile. A locale dictionary does not by itself require a new host patch row.

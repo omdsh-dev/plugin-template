@@ -2,9 +2,16 @@
 
 [English](README.md) | 中文
 
-面向 ESM Cordis 插件的自包含独立仓库模板。仓库用到的每个源文件、编译器配置、测试夹具、贡献说明、skill 和构建辅助都位于本目录内;每个开发输入都从本仓库根目录以下解析。
+面向 DeepSeek Harness 0.2.1-rc.2 的 ESM Cordis 插件自包含独立仓库模板。仓库用到的每个源文件、编译器配置、测试夹具、贡献说明、skill 和构建辅助都位于本目录以下。DSH 宿主是成品包的运行时消费者，不是源码或构建输入。
 
-普通 npm 依赖从包 registry 解析。DSH 宿主是成品包的运行时消费者,不是源码或构建输入。
+## 文档地图
+
+| 需要 | 阅读 |
+| --- | --- |
+| 契约规则：插件形态、manifest、依赖、展示、生命周期、组合、client、分发 | [docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) |
+| 端到端工作流与阶段路由 | [.agents/skills/dsh-plugin-development/SKILL.md](.agents/skills/dsh-plugin-development/SKILL.md) |
+| 源码、测试与补丁布局 | [src/LAYOUT.md](src/LAYOUT.md)、[tests/LAYOUT.md](tests/LAYOUT.md)、[patches/LAYOUT.md](patches/LAYOUT.md) |
+| 命令、CI 与发布流程 | 本 README 与 [.github/workflows](.github/workflows) |
 
 ## 仓库布局
 
@@ -12,158 +19,141 @@
 .
 ├── .agents/skills/               # 仓库本地插件开发工作流
 │   ├── dsh-plugin-development/   # 端到端协调器
-│   └── dsh-plugin-*/             # plan、scaffold、implement、compose、test、release
+│   └── dsh-plugin-*/             # 阶段 skill
 ├── docs/
-│   └── dsh-plugin-contracts.md   # 所有插件 skill 共享的本地契约
+│   └── dsh-plugin-contracts.md   # 权威的包与集成契约
 ├── patches/
-│   └── README.md                 # 依赖补丁与 DSH host patch 契约
+│   └── LAYOUT.md                 # 依赖补丁与 DSH host patch 契约
 ├── scripts/
-│   ├── extract-patch.mjs         # 配置驱动的 host patch 再生成(见 patches/README.md)
+│   ├── extract-patch.mjs         # host patch 再生成
 │   └── patch.sh                  # 幂等的 host patch 应用
 ├── src/
-│   ├── README.md                 # 服务与功能模块的增长规则
-│   ├── config.ts                 # 可序列化 schema 与解析后的默认值
+│   ├── assets/
+│   │   ├── icon.svg              # 通过 `./icon` 导出的插件图标
+│   │   └── locale/
+│   │       ├── en.json           # 展示元数据
+│   │       └── zh.json
+│   ├── LAYOUT.md                 # 源码模块增长规则
+│   ├── config.ts                 # Schemastery schema 与默认值
 │   ├── index.ts                  # Loader 面向的函数插件命名空间
-│   ├── invariant.ts              # 包自有的 invariant companion
-│   └── runtime.ts                # 可 fake 的宿主边界与 Cordis 激活
+│   └── runtime.ts                # 宿主边界与激活
 ├── tests/
-│   ├── README.md                 # harness、功能测试与快照约定
+│   ├── LAYOUT.md                 # 测试约定
 │   ├── harness.ts                # 共享的真实 Cordis 测试挂载
-│   ├── plugin.spec.ts            # Loader 导出与激活测试
+│   ├── plugin.test.ts            # Loader 与激活测试
 │   └── snapshots/
-│       └── README.md             # 可选的产品可见 fixture 契约
-├── .oxlintrc.json                 # 类型感知的 Oxlint 配置
-├── .gitignore                    # 生成产物排除
-├── AGENTS.md                     # 仓库本地贡献规则
-├── LICENSE                       # 模板许可证
-├── README.md                     # 仓库与使用契约
+│       └── LAYOUT.md             # 可选的产品可见 fixture
+├── .oxlintrc.json                # 类型感知 Oxlint 配置
+├── AGENTS.md                     # 贡献者常驻规则与导航
 ├── cordis.patch.yml              # profile bundle 贡献
-├── package.json                  # 导出、peers、dsh.bundle.patch
-├── pnpm-lock.yaml                # 可复现的 registry 依赖图
-├── pnpm-workspace.yaml           # 包管理器与可选补丁策略
+├── package.json                  # 导出、peers、engines 与 bundle 元数据
+├── pnpm-lock.yaml                # 可复现依赖图
+├── pnpm-workspace.yaml           # 包管理器策略
 ├── tsconfig.json                 # 编译器与类型感知 lint 工程
-├── tsdown.config.ts              # 从源码直接构建运行时与声明
+├── tsdown.config.ts              # 源码到运行时/声明的构建
 └── vitest.config.ts              # 测试运行器配置
 ```
 
-## 可扩展的源码与测试结构
+## 包契约
 
-基线镜像了大型 DSH 插件使用的可扩展一级拆分,同时保持产品行为最小:
+完整契约由 [docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) 拥有。以下是方向性要点：
 
-- `src/index.ts` 拥有 Loader 命名空间;
-- `src/config.ts` 拥有可序列化 schema 与直接调用默认值;
-- `src/runtime.ts` 拥有可 fake 的宿主边界与 Cordis 激活;
-- `tests/harness.ts` 拥有共享的真实 Cordis 测试挂载;
-- 内聚的产品行为按能力命名的 `src/<feature>/` 目录增长;
-- 稳定的产品可见期望输出属于 `tests/snapshots/`;
-- 依赖补丁与 DSH host patch 属于 `patches/`:精确 registry 版本用 pnpm `patchedDependencies`,插件需要宿主源码改动时用针对 DSH 宿主的自包含 diff。
-
-Turtle UI 的 chat、components、extension 目录描述的是那个产品,不是 DSH 插件契约。只有新插件真正拥有那些能力时才创建对应的功能目录。本地规则见 `src/README.md`、`tests/README.md`、`tests/snapshots/README.md` 与 `patches/README.md`。
+- 函数插件以同一个 ESM 命名空间导出 `name`、`inject`、`Config` 和 `apply`，不提供 default export。
+- `engines.node` 为 `>=24.0.0`；`engines.dsh` 声明支持的 DSH 范围；`dsh.manifestVersion` 与 `dsh.bundle.patch` 描述公开的 bundle 层。
+- Plugin Manager 通过导出的 `./locale/*.json` 与 `./icon` 读取展示元数据。本模板把物理文件放在 `src/assets/` 并列入 `files`。
+- `@deepseek-ai/cordis` 与 `@deepseek-ai/schemastery` 是宿主提供的 peer，同时在 `devDependencies` 中供本地检查；详见 [dependencies](docs/dsh-plugin-contracts.md#dependencies)。
+- 有浏览器面的包声明 `dsh.client`，并在 `./client` 导出构建后的 bundle。
 
 ## 创建你的插件
 
-1. 在 `package.json`、`src/index.ts`、`src/config.ts`、`src/runtime.ts`、`src/invariant.ts`、`tests/plugin.spec.ts`、`cordis.patch.yml`、TypeScript 包元数据、`README.md` 与 `AGENTS.md` 中替换包身份。
-2. 在替换身份前先明确完整的 npm 包名。包名可以是 scoped 或 unscoped（例如 `comem`），不要默认继承模板的 `@your-scope/dsh-` 前缀。将选定包名原样用于 `package.json`、bundle 行、invariant 注册、exports、测试和文档。只在上述身份属主中替换模板包名 `@your-scope/dsh-plugin-template` 和插件 id。不要对 `.agents/skills/` 做全局替换;它的通用示例与标记检查必须保持可复用。
-3. 更新 `description`、`keywords`、`LICENSE` 与 `cordis.patch.yml`。
-4. 只把实现用到的 DSH 宿主服务加入包契约与组合补丁。源码和构建依赖必须能从本仓库的 `node_modules` 解析。
-5. 当包拥有权威事件或可变数据关系时,替换空的 invariant installer。
-6. 在 `src/runtime.ts` 实现激活与宿主边界行为,按需把内聚能力移入项目专属的 `src/<feature>/` 目录。保持 `src/index.ts` 只含 Loader 元数据与公共 re-export,并通过 `ctx.effect()`、`ctx.on()` 或 registry disposer 限定注册范围。
-7. 保持每个源码、编译器、文档和工程引用路径都在本仓库内。从项目根描述文件,例如 `docs/dsh-plugin-contracts.md`。不要添加本地路径 `link:` 或 `file:` 依赖。
-8. 只有当包的公共依赖与分发产物就绪时,才把 `private` 设为 `false`。
+1. 在 `package.json`、Loader 属主、配置/运行时属主、聚焦测试、bundle 元数据、TypeScript 元数据、两份 README、`AGENTS.md` 与 `src/assets/` 中替换包身份。
+2. 选择完整的 npm 包名。它可以是 scoped 或 unscoped；不要默认继承模板的 `@your-scope/dsh-` 前缀。只在身份属主中替换，不要在 `.agents/skills/` 里全局替换。
+3. 把 `engines.dsh` 设为实际支持的范围；除非有意采用不同宿主契约，保持 `engines.node` 为 Node 24 LTS 或更高。
+4. 更新 `keywords`、`LICENSE`、`cordis.patch.yml` 以及展示标题、描述和图标。
+5. 只加入实现实际使用的 DSH 宿主服务；放置每个包时按 [dependencies](docs/dsh-plugin-contracts.md#dependencies) 分类。
+6. 在运行时/服务属主中实现激活与宿主边界行为，让注册归插件 fiber 所有，并在测试中证明销毁。
+7. 保持每个源码、编译器、文档和工程引用路径都在本仓库内。不要添加 `link:` 或 `file:` 依赖。
+8. 只有当包的公共依赖与分发产物就绪时，才把 `private` 设为 `false`。
 
-不要给函数插件添加 default export。Cordis Loader 会解包 `exports.default ?? exports`;多余的 default export 会丢弃 `inject`、`Config`、`apply` 等命名空间导出。
+不要给函数插件添加 default export。Cordis Loader 会解包 `exports.default ?? exports`；多余的 default export 会丢弃 `inject`、`Config` 和 `apply`。
 
 ## 内置开发 skills
 
-DSH 会发现在 `.agents/skills/` 下的仓库本地工作流。完整流程从 [`dsh-plugin-development`](.agents/skills/dsh-plugin-development/SKILL.md) 开始,也可以直接调用某一阶段:
+完整流程从 [`dsh-plugin-development`](.agents/skills/dsh-plugin-development/SKILL.md) 开始，也可以直接调用某一阶段：
 
 | Skill | 用途 |
-|---|---|
-| [`dsh-plugin-plan`](.agents/skills/dsh-plugin-plan/SKILL.md) | 决定插件形态、依赖、配置、invariant、组合与证据。 |
-| [`dsh-plugin-scaffold`](.agents/skills/dsh-plugin-scaffold/SKILL.md) | 从本模板实例化并基线验证新仓库。 |
-| [`dsh-plugin-align`](.agents/skills/dsh-plugin-align/SKILL.md) | 在不替换产品行为的前提下，把非模板仓库迁移到本工具链。 |
-| [`dsh-plugin-implement`](.agents/skills/dsh-plugin-implement/SKILL.md) | 实现生命周期安全的 Cordis 行为、元数据、文档与 invariants。 |
-| [`dsh-plugin-i18n`](.agents/skills/dsh-plugin-i18n/SKILL.md) | 用类型化字典、locale seat、fallback 与销毁证据本地化浏览器 UI。 |
-| [`dsh-plugin-compose`](.agents/skills/dsh-plugin-compose/SKILL.md) | 把 bundle 安装进隔离 profile 并证明有效激活。 |
-| [`dsh-plugin-test`](.agents/skills/dsh-plugin-test/SKILL.md) | 验证 Loader 导出、行为、销毁、组合、快照与产物。 |
-| [`dsh-plugin-release`](.agents/skills/dsh-plugin-release/SKILL.md) | 在不隐式发布的前提下检查本地、Git 或 npm 分发就绪度。 |
+| --- | --- |
+| [plan](.agents/skills/dsh-plugin-plan/SKILL.md) | 决定形态、依赖、配置、兼容性、展示、组合、证据与分发。 |
+| [scaffold](.agents/skills/dsh-plugin-scaffold/SKILL.md) | 从模板实例化并基线验证新仓库。 |
+| [align](.agents/skills/dsh-plugin-align/SKILL.md) | 在不改变行为的前提下迁移现有仓库到本工具链。 |
+| [implement](.agents/skills/dsh-plugin-implement/SKILL.md) | 实现生命周期安全的行为、配置、元数据、文档与测试。 |
+| [client](.agents/skills/dsh-plugin-client/SKILL.md) | 添加 `dsh.client` 浏览器面、slot、settings 表单与 ModuleLoader 检查。 |
+| [i18n](.agents/skills/dsh-plugin-i18n/SKILL.md) | 用类型化字典与销毁证据本地化浏览器 UI。 |
+| [compose](.agents/skills/dsh-plugin-compose/SKILL.md) | 把 bundle 安装进 profile，并证明激活与兼容性。 |
+| [test](.agents/skills/dsh-plugin-test/SKILL.md) | 为 Loader、行为、销毁、组合与产物选择最小证据。 |
+| [release](.agents/skills/dsh-plugin-release/SKILL.md) | 在不发布的前提下检查 packed、Git 或 npm 发布就绪度。 |
 
-复制模板时保留这些目录,这样未来扎根于插件仓库的会话能沿用同一工作流。
+复制模板时保留这些目录。
 
 ## 独立开发
 
-所有命令都在本目录运行:
+在本仓库根目录运行：
 
 ```sh
 pnpm install
 pnpm run lint
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
-`pnpm install` 只解析本包声明的依赖。`lint` 使用启用类型感知分析的 Oxlint 并拒绝警告,检查配置的源码与测试工程。`build` 直接从 `src/` 编译 host entry,向 `lib/` 输出可直接打包的运行时 JavaScript 与声明,不运行安装期 lifecycle build。额外参数会透传给 tsdown,因此本地调试可用 `pnpm run build --sourcemap` 产出 source map;默认 `build` 不产 map。
-
-release 产物在打包前从 `src/` 构建。profile 或 consumer 安装消费现成的 `lib/` 输出，不运行 `prepare`；使用 `pnpm pack --dry-run --json` 检查最终归档内容。
+`lint` 是类型感知的静态分析门；`test` 使用 Vitest `forks` 池，禁止子进程 fork 的受限宿主可在本地运行 `vitest run --pool=threads`；`build` 生成可直接打包的 `lib/` 运行时与声明，不运行安装期构建。
 
 ## CI
 
-模板自带两个 GitHub Actions 工作流:
-
-- `.github/workflows/ci.yml` — 每次推送到 `main` 与每个 pull request:冻结 lockfile 安装、Oxlint 静态分析、测试与构建。
-- `.github/workflows/release.yml` — 每次推送到 `main`:执行 Oxlint、测试、构建，打包现成 tarball(`pnpm pack`)，发布到以 `package.json` 的版本号命名的 GitHub Release(`v<version>`)。提升 `version` 即发布新版本;同版本再次推送会刷新该 Release 的产物。
+- [ci.yml](.github/workflows/ci.yml)：冻结安装、lint、测试与构建，覆盖 `main` 推送和 pull request。
+- [release.yml](.github/workflows/release.yml)：执行同样检查后打包 tarball，并发布到对应版本的 GitHub Release。
 
 ## Profile 激活
 
-包 manifest 声明 bundle 补丁:
+通过插件通道安装：
 
-```json
-{
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  }
-}
+```sh
+dsh plugin --profile <profile> add <package-or-tarball>
 ```
 
-DSH 宿主可以把本包安装进 profile,并用 `cordis.patch.yml` 覆盖自身的运行时组合。该宿主集成刻意位于本仓库的构建与测试输入之外。补丁只组合插件;它不修改宿主源码、编译器设置、构建脚本或 catalog。
-
-invariant companion 通过窄本地接口使用宿主的 `invariants` 服务。这让包构建不依赖宿主私有源码包,同时保留启用了 invariants 的 DSH profile 使用的运行时注册。只有在消费 profile 提供该服务时才插入 companion 行；普通 `dsh-base`/`dsh-web-app` profile 应省略这一行，否则 entry 会一直 pending。
+Profile 启动时检查 `engines.dsh`，按 bundle 顺序应用 `dsh.bundle.patch`，并在不激活插件的情况下读取展示元数据。见 [manifest 与兼容性](docs/dsh-plugin-contracts.md#manifest-and-compatibility) 与 [bundle 组合](docs/dsh-plugin-contracts.md#bundle-composition)。
 
 ## 插件形态
 
-本模板演示函数插件,因此使用命名导出:
-
 ```ts
-// src/index.ts
 export const name = 'plugin-template'
 export const inject: string[] = []
 export { Config } from './config.ts'
 export { apply } from './runtime.ts'
 
 // src/config.ts
-export interface Config { /* 可序列化字段 */ }
-export const Config: z<Config> = z.object({ /* 校验与默认值 */ })
+import Schema from '@deepseek-ai/schemastery'
+export interface PluginConfig { /* 可序列化字段 */ }
+export const Config: Schema<PluginConfig> = Schema.object({ /* 校验与默认值 */ })
 
 // src/runtime.ts
-export function apply(ctx: Context, config: Config): void { /* effects */ }
+export function apply(ctx: Context, config: PluginConfig): void { /* effects */ }
 ```
 
-服务提供者通常改为 default-export 它的 `Service` 子类。两种形态不要混用。
+`Config` 是 Cordis Loader 校验的 schema 值；`PluginConfig` 是公开的 TypeScript 配置形状。将两者分开命名可以避免声明合并与 `no-redeclare` 的误报。服务提供者改为 default-export 它的 `Service` 子类；两种形态不要混用。
 
-## 分发检查
+## 分发
 
-在考虑 packed 或 GitHub Release 分发前，构建并检查最终归档:
+打包前先构建并检查归档：
 
 ```sh
-pnpm run lint
-pnpm test
 pnpm run build
 pnpm pack --dry-run --json
 ```
 
-最终包必须包含 `main`、`types`、`exports` 与 `files` 命名的每个运行时与声明文件。在包的 DSH 宿主 peers 通过所选分发通道可用之前,保持 `private: true`。
+归档必须包含 `main`、`types`、`exports` 与 `files` 承诺的每个文件，以及 bundle patch 与展示资源的物理文件。见 [构建与分发](docs/dsh-plugin-contracts.md#build-and-distribution)。Git 安装获取源码；只有确实要通过这种方式分发时，才添加自包含的 `prepare` 构建，并说明消费方需要授予的构建脚本批准。
 
-## 测试指引
+## 测试
 
-自带测试证明 Loader 安全的 ESM 导出与 schema 解析后的激活。把激活断言替换为对每个 registry 贡献的可观察行为与销毁断言。产品可见插件应在消费它的 DSH 应用中添加真实 Loader/profile 组合测试,而不是只依赖手工挂载的单元测试。
+自带测试证明 Loader 安全的 ESM 导出与 schema 解析后的激活。把激活断言替换为对每个 registry 贡献的可观察行为与销毁断言。产品可见插件还应在消费它的 DSH 应用中添加真实 Loader/profile 组合测试；见 [tests/LAYOUT.md](tests/LAYOUT.md) 与 [证据](docs/dsh-plugin-contracts.md#evidence)。

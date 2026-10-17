@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-development
-description: Use when creating or extending a standalone DeepSeek Harness Cordis plugin from this self-contained template and coordinating planning, scaffolding, implementation, profile composition, testing, and release readiness. Do not use for SDK DSL-only projects or host-source changes.
+description: Coordinate the complete standalone DSH plugin workflow from plan through release readiness; load the stage skills this router names.
 ---
 
 # Develop a Standalone DSH Plugin
@@ -9,14 +9,14 @@ This skill coordinates the complete standalone-plugin workflow. It is guidance, 
 
 ## Scope
 
-Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package-owned invariant companion and an optional profile bundle patch. A package may be host-only, client-only, or split across host and browser faces; record the actual owners rather than imposing one layout. The repository-local contract reference below is the source for the conventions this template can verify. An invariant companion is optional at composition time: include its bundle row only when the selected profile provides the `invariants` service.
+Use this suite for an ESM Cordis plugin package based on this repository's `README.md`, including a package manifest with `engines.dsh`, optional display metadata, an optional profile bundle patch, and an optional browser face declared with `dsh.client`. A package may be host-only, client-only, or split across host and browser faces; record the actual owners rather than imposing one layout. The repository-local contract reference below is the source for the conventions this template can verify.
 
 Read the applicable project-root files before implementation:
 
 - `AGENTS.md`
 - `README.md`
 - `docs/dsh-plugin-contracts.md`
-- the source, configuration, contract, and focused test owners named by the current package layout
+- the source, configuration, contract, display, and focused test owners named by the current package layout
 
 ## Required inputs
 
@@ -27,6 +27,8 @@ Establish these facts before editing. Ask one concise batch of questions when th
 - npm package name and stable Cordis plugin id;
 - intended profile or consuming application;
 - whether the package is new or existing;
+- supported DSH range for `engines.dsh`;
+- whether the package has a browser face and, if so, its slots and display resources;
 - intended distribution channel: local checkout, Git, npm, or not yet selected;
 - required host peers and their provider installation order;
 
@@ -43,10 +45,12 @@ packageName:
 pluginId:
 pluginForm: function | service
 roles:
+enginesDsh:
 requiredServices:
 optionalServices:
 config:
-invariant:
+displayMetadata:
+clientFace:
 bundleRows:
 testTiers:
 distribution:
@@ -60,22 +64,21 @@ Do not create a transient planning file merely to move between skills. Create a 
 
 For an existing non-template repository, load `dsh-plugin-align` from `.agents/skills/dsh-plugin-align/SKILL.md` before planning. It audits and migrates repository mechanics without replacing product behavior; it does not scaffold over a non-empty target.
 
-1. Load `dsh-plugin-plan` from `.agents/skills/dsh-plugin-plan/SKILL.md`. Leave planning only after the plugin form, roles, dependencies, configuration, invariant decision, composition, test tiers, and distribution assumptions are explicit.
-2. For a new repository, load `dsh-plugin-scaffold` from `.agents/skills/dsh-plugin-scaffold/SKILL.md`. Leave scaffolding only after identity, files, dependency metadata, and the package's actual static-analysis, test, build, and pack checks pass. Skip file creation for an existing plugin, but still audit it against the scaffold exit conditions.
-3. Load `dsh-plugin-implement` from `.agents/skills/dsh-plugin-implement/SKILL.md`. Implement only the planned behavior, update the package contract and invariant companion, delete template-only `src/README.md` from the target repository, and keep all registrations owned by the plugin fiber.
-4. Load `dsh-plugin-client` from `.agents/skills/dsh-plugin-client/SKILL.md` when the plugin owns a browser client. Keep the client boundary proportional to the UI, use the host-compatible JSX transform, and verify the built ModuleLoader artifact.
+1. Load `dsh-plugin-plan` from `.agents/skills/dsh-plugin-plan/SKILL.md`. Leave planning only after the plugin form, roles, dependencies, configuration, DSH compatibility, display metadata, composition, test tiers, and distribution assumptions are explicit.
+2. For a new repository, load `dsh-plugin-scaffold` from `.agents/skills/dsh-plugin-scaffold/SKILL.md`. Leave scaffolding only after identity, manifest metadata, display resources, dependency metadata, and the package's actual static-analysis, test, build, and pack checks pass. Skip file creation for an existing plugin, but still audit it against the scaffold exit conditions.
+3. Load `dsh-plugin-implement` from `.agents/skills/dsh-plugin-implement/SKILL.md`. Implement only the planned behavior, update the package contract and display resources, delete template-only `src/LAYOUT.md` from the target repository, and keep all registrations owned by the plugin fiber.
+4. Load `dsh-plugin-client` from `.agents/skills/dsh-plugin-client/SKILL.md` when the plugin owns a browser client. Keep the client boundary proportional to the UI, declare `dsh.client`, use the host-compatible client build, and verify the built ModuleLoader artifact.
 5. Load `dsh-plugin-i18n` from `.agents/skills/dsh-plugin-i18n/SKILL.md` alongside it when the client owns product-visible copy. Register the feature's typed dictionaries, route copy through the locale seat, and prove fallback and disposal before composing or releasing the client face.
-6. Load `dsh-plugin-compose` from `.agents/skills/dsh-plugin-compose/SKILL.md` when the package contributes a profile bundle or must be proven in an assembled DSH profile. Verify the effective rows rather than assuming the patch applied.
+6. Load `dsh-plugin-compose` from `.agents/skills/dsh-plugin-compose/SKILL.md` when the package contributes a profile bundle or must be proven in an assembled DSH profile. Verify the effective rows and the compatibility decision rather than assuming the patch applied.
 7. Load `dsh-plugin-test` from `.agents/skills/dsh-plugin-test/SKILL.md`. Run the smallest evidence that covers the behavior; product-visible plugins require a real Loader/profile composition test in addition to hand-mounted unit tests.
-8. Load `dsh-plugin-release` from `.agents/skills/dsh-plugin-release/SKILL.md` for Git/npm delivery or when claiming the package is distribution-ready. Local-only work still performs its placeholder, exports, files-list, and build-artifact checks.
+8. Load `dsh-plugin-release` from `.agents/skills/dsh-plugin-release/SKILL.md` for Git/npm delivery or when claiming the package is distribution-ready. Local-only work still performs its placeholder, exports, files-list, display-resource, and build-artifact checks.
 
 Stages may be performed in one coding pass, but their exit conditions do not disappear. Planning is never skipped. Composition may be omitted only for a package that deliberately declares no bundle and is tested through its actual consumer. Publishing actions require a direct user request; release readiness never implies permission to publish, tag, push, or create a remote.
 
 ## Hard stops
 
-- Every runtime-provided host package is declared as a required or optional peer when the consumer supplies it, and the repository has a declared development source when it builds or tests against it. Do not bundle a host runtime into the plugin; document how the consumer provides required peers and verify provider behavior at the applicable workspace or profile.
+- Apply `docs/dsh-plugin-contracts.md` for package form, dependencies, compatibility, display, client, and bundle composition. Do not restate, weaken, or bypass those rules in a stage.
 - A function plugin named-exports `name`, `inject`, `Config`, and `apply` and has no default export. A service plugin default-exports its service class. Never mix the two forms.
-- `cordis.patch.yml` composes packages and configuration; it does not patch DSH host source, TypeScript projects, catalogs, or launch code.
 - Every source, compiler, documentation, and skill input must resolve below the repository root. Add a registry dependency or local contract file instead of reading another checkout.
 - Never commit credentials. Accept secret references or environment-variable names according to the owning DSH service.
 - Do not add compatibility shims for hypothetical consumers or hardcode deployment-varying tunables.
@@ -88,4 +91,4 @@ This suite is repository-local and is part of the template source. Preserve `.ag
 
 ## Completion report
 
-Report the final package path, plugin form, injected services, bundle rows, invariant decision, behavior added, commands actually run, distribution status, and any unverified environment-dependent step. Keep release actions and readiness claims separate.
+Report the final package path, plugin form, injected services, DSH compatibility range, display metadata, bundle rows, browser face when present, behavior added, commands actually run, distribution status, and any unverified environment-dependent step. Keep release actions and readiness claims separate.

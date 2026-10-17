@@ -4,7 +4,7 @@
  * contains both the pinned baseline snapshot and the upstream commit
  * carrying the host wiring (typically a fork branch).
  *
- * Contract (patches/README.md): a host patch carries only the actual code
+ * Contract (patches/LAYOUT.md): a host patch carries only the actual code
  * the official plugin registration system cannot provide — launcher
  * wiring, build seams, catalog entries compiled into official packages,
  * and their tests. Never documentation, never anything the official
@@ -19,7 +19,7 @@
  *     the trimmed worktree.
  *
  * Configuration lives in `patches/host-patch.config.json` (schema in
- * patches/README.md). CLI flags override the config:
+ * patches/LAYOUT.md). CLI flags override the config:
  *   --harness <path>  checkout containing both snapshots
  *                     (default $DSH_HARNESS or ../deepseek-harness)
  *   --baseline <sha>  pinned host snapshot

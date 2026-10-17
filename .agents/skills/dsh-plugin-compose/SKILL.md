@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-compose
-description: Use when wiring a standalone DSH plugin into a profile through package.json dsh.bundle.patch and cordis.patch.yml, installing a local or Git package with dsh plugin, inspecting effective rows, and proving activation without patching DSH host source.
+description: Install a DSH plugin bundle into a profile, verify engines.dsh compatibility, inspect effective rows, and prove activation without patching host source.
 ---
 
 # Compose a Plugin into a DSH Profile
@@ -17,7 +17,11 @@ The package manifest must point at a shipped patch:
 
 ```json
 {
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
   "dsh": {
+    "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
@@ -25,21 +29,23 @@ The package manifest must point at a shipped patch:
 }
 ```
 
-Ensure `cordis.patch.yml` is present in the manifest `files` list. Every bare package named in a patch row must be a runtime-resolvable package of the profile or DSH installation; TypeScript path aliases do not affect Loader resolution.
+`dsh.bundle.patch` may be one path or an ordered list of paths applied as one layer. Each path is relative to the package root. Ensure every patch file is present in the manifest `files` list. Every bare package named in a patch row must be a runtime-resolvable package of the profile or DSH installation; TypeScript path aliases do not affect Loader resolution.
+
+The package should also ship display metadata so Plugin Manager and Settings can show it without activating the plugin; see `docs/dsh-plugin-contracts.md#display-metadata-and-icon`.
 
 ## Review patch semantics
 
-Apply these rules before installation:
+Review the patch against `docs/dsh-plugin-contracts.md#bundle-composition`: confirm layer order, stable ids, complete `config` overrides, unmatched-id warnings, literal metadata, and credentials. `cordis.patch.yml` cannot edit DSH source files, compiler settings, build scripts, generated catalogs, CLI routing, or runtime boot code. If behavior requires those changes, stop and classify it as a DSH host change; use the repository's documented, controlled host-patch process when one is required rather than hiding the change in plugin installation instructions.
 
-- Bundle layers are applied in the order listed by `dsh.profile.bundles`; profile, home, command-line, and launcher patches may override them later.
-- An id-targeted patch replaces that row's complete `config` value. Restate every field the plugin expects to retain; never assume deep merge.
-- `insert` adds rows. Use stable, deployment-local ids and the exact manifest package name; it may be scoped or unscoped. For a companion row, derive the subpath from that name (for example, `<packageName>/invariant`) rather than assuming an `@scope/dsh-` prefix, and insert it only when the selected profile provides the companion's required service.
-- A patch targeting an absent id warns on stderr rather than proving the intended override; inspect the effective tree and treat the warning as failed composition unless absence is intentional.
-- `!!js` is permitted only inside plugin `config`. Loader metadata such as `id`, `name`, and `disabled` stays static.
-- Keep credentials out of patches; use credential references or environment-variable names.
-- An empty or comments-only patch is invalid because it parses to no list. Use `[]` for an intentionally empty layer.
+## Check compatibility first
 
-`cordis.patch.yml` cannot edit DSH source files, compiler settings, build scripts, generated catalogs, CLI routing, or runtime boot code. If behavior requires those changes, stop and classify it as a DSH host change; use the repository's documented, controlled host-patch process when one is required rather than hiding the change in plugin installation instructions.
+Follow `docs/dsh-plugin-contracts.md#manifest-and-compatibility` for the compatibility decision. A mismatch returns an `incompatible-version` refusal naming the requirement and range. Do not bypass it by editing `package.json` or removing the range. If the exact package version and runtime version are intentionally being tested, use the documented exact-version exemption:
+
+```sh
+dsh plugin --profile <profile> allow-version <package@version> --dsh-version <runtime> --accept-risk
+```
+
+Warn the user about crashes and data loss before granting it. Revoke it with `revoke-version`. An exemption never authorizes dependency build scripts.
 
 ## Choose an isolated profile
 
@@ -49,18 +55,23 @@ Select the base profile that supplies the required services. A custom profile in
 
 ## Install the package
 
-Confirm `pnpm` is on `PATH`; `dsh plugin` forwards package-manager operations to it and fails before installation when it is unavailable.
-
-Install a packed artifact, registry version, or user-approved Git spec through DSH's profile package manager. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete. Before installation, enumerate every required peer in the package manifest and verify that the target profile already provides each one; install provider bundles or packages first rather than copying host peers into the consumer. The package repository's peer policy is not transferred to the consuming profile. Do not claim that `dsh plugin add` rejects a missing peer unless the profile's own peer policy has been independently verified.
+Confirm `pnpm` is on `PATH`; `dsh plugin` forwards package-manager operations to it and fails before installation when it is unavailable. Place `--profile` before every forwarded pnpm argument:
 
 ```sh
 pnpm pack
-# pass the generated archive, registry spec, or approved Git spec to dsh plugin
+dsh plugin --profile <profile> add ./<package>-<version>.tgz
 ```
 
-The release channel uses a ready-made tarball, so profile installation does not run a package `prepare` hook or require a lifecycle-build allowlist. If a source Git spec is explicitly approved for another package, follow that package's documented build contract rather than adding broad `allowBuilds` entries.
+Install through DSH's profile package manager rather than editing the profile manifest by hand. Do not use a repository-relative `link:` or `file:` spec; the package must first prove that its own artifact is complete. Before installation, enumerate every required peer in the package manifest and verify that the target profile already provides each one; install provider bundles or packages first rather than copying host peers into the consumer.
 
 A successful package-manager command should add a manifest-declared bundle to `dsh.profile.bundles`. A dependency without `dsh.bundle.patch` remains installed but inactive as a bundle; treat the warning as a manifest defect when activation was intended.
+
+With HMR enabled, installing a package that is already installed is refused with `already-installed`. Remove the existing bundle first, then install the replacement:
+
+```sh
+dsh plugin --profile <profile> remove <package>
+dsh plugin --profile <profile> add <new-spec>
+```
 
 ## Inspect the effective composition
 
@@ -71,14 +82,16 @@ dsh --profile <profile> --dump-default-config
 dsh --profile <profile> --dump-config
 ```
 
-Confirm the expected bundle source comment, inserted rows, overridden full configuration, ordering, the invariant companion when its required service is present (or its intentional absence otherwise), and absence of unmatched-target warnings. Inspect the profile `package.json` only as supporting evidence; the effective dump owns the assembled result.
+Confirm the expected bundle source comment, inserted rows, overridden full configuration, ordering, and absence of unmatched-target warnings. Confirm the compatibility decision was accepted, and that a bundle skipped for an incompatible or unreadable manifest is reported in the launcher's skipped-bundle output. Inspect the profile `package.json` only as supporting evidence; the effective dump owns the assembled result.
 
-## Prove activation
+## Prove activation and display
 
 Boot through the actual intended runner or application entry. Observe an effect specific to plugin activation, not only package resolution or a generic log from another row. For a long-lived TUI/Web process, use a managed background task or the environment's designated terminal/tmux workflow, collect its output, and dispose it cleanly after the smoke.
+
+Verify the plugin's display title, description, and icon in Plugin Manager and Settings, in English and the user's locale when supplied. Installation and row presence alone do not prove rendered metadata.
 
 Composition proves that the layer resolves, mounts, and disposes. Behavioral correctness belongs to `dsh-plugin-test` at `.agents/skills/dsh-plugin-test/SKILL.md`, including real-composition assertions for product-visible plugins.
 
 ## Composition exit condition
 
-Return the profile name and isolated home, install spec, bundle order, expected effective rows, warnings, activation observation, cleanup status, and exact commands run. Do not report successful composition when only `pnpm add` passed, when an override target was absent, or when the plugin never reached its real entry path.
+Return the profile name and isolated home, install spec, bundle order, expected effective rows, compatibility result, display verification, warnings, activation observation, cleanup status, and exact commands run. Do not report successful composition when only `pnpm add` passed, when an override target was absent, when the compatibility check was bypassed, or when the plugin never reached its real entry path.

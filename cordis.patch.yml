@@ -1,14 +1,10 @@
 # Bundle patch applied over the selected DSH profile when this package is listed
 # in `dsh.profile.bundles`. The row id is deployment-local; the package name
-# must match package.json.
+# must match package.json. Display metadata and the icon come from the exported
+# `locale/*.json` files and `./icon` resource, not from this patch.
 
 - insert:
     - id: plugin-template
       name: '@your-scope/dsh-plugin-template'
       config:
         message: DSH plugin template loaded
-
-    # The `./invariant` export remains available for profiles that mount
-    # `@deepseek-ai/dsh-invariants`. The ordinary dsh-base/web-app profiles do
-    # not provide that service, so do not insert the companion row here; doing
-    # so would leave it pending during startup.

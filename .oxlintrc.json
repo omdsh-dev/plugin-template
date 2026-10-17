@@ -19,8 +19,10 @@
     "oxc"
   ],
   "options": {
+    "denyWarnings": true,
     "reportUnusedDisableDirectives": "warn",
-    "typeAware": true
+    "typeAware": true,
+    "typeCheck": true
   },
   "env": {
     "builtin": true
@@ -38,6 +40,7 @@
     "no-inline-comments": "off", // Pedantic
     "typescript/prefer-readonly-parameter-types": "off", // Pedantic
 
+    "vitest/require-test-timeout": "off", // Restriction
     // 与 typescript/prefer-optional-chain 冲突
     "oxc/no-optional-chaining": "off", // Restriction
     // 与 unicorn/prefer-spread 冲突
@@ -51,6 +54,7 @@
     "import/no-nodejs-modules": "off", // Restriction
     "node/no-sync": "off", // Restriction
 
+    "one-var": "off", // Style
     // 与 fmt.sortImports.ignoreCase 冲突
     "sort-imports": ["error", { "ignoreDeclarationSort": true }], // Style
     // 与 import/consistent-type-specifier-style 冲突

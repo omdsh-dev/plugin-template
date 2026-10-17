@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DSH Plugin Template">
+  <defs>
+    <linearGradient id="g" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4f8cff"/>
+      <stop offset="1" stop-color="#7048e8"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#g)"/>
+  <path d="M23 21v7M41 21v7" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M19 28h26v10a13 13 0 0 1-13 13 13 13 0 0 1-13-13V28Z" fill="#fff"/>
+  <path d="M32 36v8" stroke="#7048e8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="48" cy="16" r="4" fill="#ffd43b"/>
+</svg>

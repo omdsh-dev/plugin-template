@@ -14,10 +14,11 @@
     "access": "public"
   },
   "engines": {
-    "node": "^22.19.0 || >=24.0.0"
+    "node": ">=24.0.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
   },
   "type": "module",
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.28.5",
   "version": "0.0.1",
   "imports": {
     "#src/*": "./src/*.ts"
@@ -25,52 +26,54 @@
   "files": [
     "lib",
     "cordis.patch.yml",
-    "README.md"
+    "src/assets/locale/*.json",
+    "src/assets/icon.svg",
+    "README.md",
+    "README.zh.md"
   ],
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
+    "./locale/*.json": "./src/assets/locale/*.json",
+    "./icon": "./src/assets/icon.svg",
     "./package.json": "./package.json"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "icon": "./src/assets/icon.svg",
   "dsh": {
+    "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "scripts": {
-    "build": "tsdown --config-loader unrun --config tsdown.config.ts",
-    "fmt": "oxfmt --config .oxfmtrc.json --write src tests",
-    "fmt:check": "oxfmt --config .oxfmtrc.json --check src tests",
-    "lint": "oxlint --config .oxlintrc.json --type-check --deny-warnings src tests",
-    "lint:fix": "oxlint --config .oxlintrc.json --type-check --deny-warnings --fix src tests",
+    "build": "tsdown",
+    "fmt": "oxfmt src tests",
+    "fmt:check": "oxfmt --check src tests",
+    "lint": "oxlint src tests",
+    "lint:fix": "oxlint --fix src tests",
     "test": "vitest run",
     "extract:patch": "node scripts/extract-patch.mjs",
     "patch:host": "bash scripts/patch.sh"
   },
   "peerDependencies": {
-    "cordis": "^4.0.0-rc.7",
-    "schemastery": "^3.18.0"
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/schemastery": "~3.18.5"
   },
   "devDependencies": {
-    "@cordisjs/plugin-loader": "^1.0.0-rc.5",
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/cordis-plugin-loader": "~1.0.6",
+    "@deepseek-ai/schemastery": "~3.18.5",
     "@tsconfig/node24": "^24.0.5",
-    "@types/node": "^22.20.0",
-    "cordis": "^4.0.0-rc.7",
-    "oxfmt": "0.64.0",
-    "oxlint": "1.76.0",
+    "@types/node": "^24.0.0",
+    "oxfmt": "0.73.0",
+    "oxlint": "1.81.0",
     "oxlint-tsgolint": "7.0.2001",
-    "schemastery": "^3.18.0",
     "tsdown": "^0.22.2",
     "typescript": "^6.0.3",
-    "unrun": "^0.3.1",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   }
 }

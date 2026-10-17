@@ -1,7 +1,7 @@
-import { Context } from 'cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { vi } from 'vitest'
 
-import type { Config as PluginConfig } from '#src/config'
+import type { PluginConfig } from '#src/index'
 import { Config, apply, inject, name } from '#src/index'
 
 const plugin = { Config, apply, inject, name }

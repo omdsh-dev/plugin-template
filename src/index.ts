@@ -1,5 +1,6 @@
 /**
  * Standalone function plugin for DeepSeek Harness.
+ *
  * @module @your-scope/dsh-plugin-template
  */
 
@@ -10,7 +11,7 @@ const name = 'plugin-template'
 const inject: string[] = []
 
 export { Config } from './config.ts'
-export type { ResolvedConfig } from './config.ts'
+export type { PluginConfig, ResolvedConfig } from './config.ts'
 export { apply } from './runtime.ts'
 export type { PluginRuntime } from './runtime.ts'
 export { inject, name }

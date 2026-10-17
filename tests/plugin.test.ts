@@ -1,14 +1,11 @@
-import LoaderPlugin from '@cordisjs/plugin-loader'
-import { Context } from 'cordis'
-import { describe, expect, it, vi } from 'vitest'
+import { Context } from '@deepseek-ai/cordis'
+import { Loader } from '@deepseek-ai/cordis-plugin-loader'
+import { describe, expect, it } from 'vitest'
 
 import { createPluginHarness } from './harness.ts'
 
 const TEST_TIMEOUT = 5000
 const EXPECTED_SINGLE_CALL = 1
-const FIRST_INDEX = 0
-const SECOND_INDEX = 1
-const PACKAGE_NAME = '@your-scope/dsh-plugin-template'
 
 interface PluginExports {
   readonly name: unknown
@@ -18,20 +15,18 @@ interface PluginExports {
 }
 
 function isPluginExports(value: unknown): value is PluginExports {
-  return typeof value === 'object'
+  return (
+    typeof value === 'object'
     && value !== null
     && 'name' in value
     && 'inject' in value
     && 'Config' in value
     && 'apply' in value
+  )
 }
 
-function createLoader(): LoaderPlugin {
-  const candidate: unknown = Object.create(LoaderPlugin.prototype)
-  if (!(candidate instanceof LoaderPlugin)) {
-    throw new TypeError('Loader prototype did not produce a Loader instance')
-  }
-  return candidate
+function createLoader(): Loader {
+  return new Loader(new Context())
 }
 
 function assertPluginExports(unwrapped: unknown, plugin: object): void {
@@ -69,26 +64,11 @@ async function testAcceptsCompositionConfiguration(): Promise<void> {
   await harness.dispose()
 }
 
-async function testRegistersInvariantCompanion(): Promise<void> {
+async function testLogsOncePerActivation(): Promise<void> {
   expect.hasAssertions()
-  const ctx = new Context()
-  const unregister = vi.fn<() => void>()
-  const register = vi.fn<
-    (packageName: string, installer: unknown) => () => void
-  >(() => (): void => {
-    unregister()
-  })
-  const removeService = ctx.provide('invariants', { register })
-  const invariant = await import('#src/invariant')
-
-  const fiber = await ctx.plugin(invariant)
-  expect(register).toHaveBeenCalledTimes(EXPECTED_SINGLE_CALL)
-  expect(register.mock.calls[FIRST_INDEX]?.[FIRST_INDEX]).toBe(PACKAGE_NAME)
-  expect(register.mock.calls[FIRST_INDEX]?.[SECOND_INDEX]).toBeTypeOf('function')
-
-  await fiber.dispose()
-  expect(unregister).toHaveBeenCalledTimes(EXPECTED_SINGLE_CALL)
-  removeService()
+  const harness = await createPluginHarness({ message: 'once' })
+  expect(harness.info).toHaveBeenCalledTimes(EXPECTED_SINGLE_CALL)
+  await harness.dispose()
 }
 
 describe('@your-scope/dsh-plugin-template', () => {
@@ -111,8 +91,8 @@ describe('@your-scope/dsh-plugin-template', () => {
   )
 
   it(
-    'registers the invariant companion through its local host contract',
+    'logs once for one activation',
     { timeout: TEST_TIMEOUT },
-    testRegistersInvariantCompanion,
+    testLogsOncePerActivation,
   )
 })

@@ -2,160 +2,158 @@
 
 English | [中文](README.zh.md)
 
-A self-contained standalone repository template for an ESM Cordis plugin. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository is inside this directory; every development input resolves below this repository root.
+A self-contained standalone repository template for an ESM Cordis plugin targeting DeepSeek Harness 0.2.1-rc.2. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository lives below this root. A DSH host is a runtime consumer of the finished package, not a development input.
 
-Normal npm dependencies are resolved from the package registry. A DSH host is a runtime consumer of the finished package, not a source or build input.
+## Documentation map
+
+| Need | Read |
+| --- | --- |
+| Contract rules: plugin forms, manifest, dependencies, display, lifecycle, composition, client, distribution | [docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) |
+| End-to-end workflow and stage routing | [.agents/skills/dsh-plugin-development/SKILL.md](.agents/skills/dsh-plugin-development/SKILL.md) |
+| Source, test, and patch layout | [src/LAYOUT.md](src/LAYOUT.md), [tests/LAYOUT.md](tests/LAYOUT.md), [patches/LAYOUT.md](patches/LAYOUT.md) |
+| Commands, CI, and release flow | this README and [.github/workflows](.github/workflows) |
 
 ## Repository layout
 
 ```text
 .
-├── .oxlintrc.json                 # Type-aware Oxlint configuration
 ├── .agents/skills/               # Repository-local plugin development workflow
 │   ├── dsh-plugin-development/   # End-to-end coordinator
-│   └── dsh-plugin-*/             # Plan, scaffold, implement, compose, test, release
+│   └── dsh-plugin-*/             # Stage skills
 ├── docs/
-│   └── dsh-plugin-contracts.md   # Shared local contract for all plugin skills
+│   └── dsh-plugin-contracts.md   # Authoritative package and integration contract
 ├── patches/
-│   └── README.md                 # Dependency and DSH-host patch contract
+│   └── LAYOUT.md                 # Dependency and DSH-host patch contract
 ├── scripts/
-│   ├── extract-patch.mjs         # Config-driven host patch regeneration (see patches/README.md)
+│   ├── extract-patch.mjs         # Host patch regeneration
 │   └── patch.sh                  # Idempotent host patch application
 ├── src/
-│   ├── README.md                 # Growth rules for services and feature modules
-│   ├── config.ts                 # Serializable schema and resolved defaults
+│   ├── assets/
+│   │   ├── icon.svg              # Plugin icon exported through `./icon`
+│   │   └── locale/
+│   │       ├── en.json           # Display metadata
+│   │       └── zh.json
+│   ├── LAYOUT.md                 # Growth rules for source modules
+│   ├── config.ts                 # Schemastery schema and defaults
 │   ├── index.ts                  # Loader-facing function-plugin namespace
-│   ├── invariant.ts              # Package-owned invariant companion
-│   └── runtime.ts                # Fakeable host boundary and Cordis activation
+│   └── runtime.ts                # Host boundary and activation
 ├── tests/
-│   ├── README.md                 # Harness, feature-test, and snapshot conventions
-│   ├── harness.ts                # Shared real-Cordis test mount
-│   ├── plugin.spec.ts            # Loader export and activation tests
+│   ├── LAYOUT.md                 # Test conventions
+│   ├── harness.ts                # Shared real-Cordis mount
+│   ├── plugin.test.ts            # Loader and activation tests
 │   └── snapshots/
-│       └── README.md             # Optional product-visible fixture contract
-├── .gitignore                    # Generated artifact exclusions
-├── AGENTS.md                     # Repository-local contributor rules
-├── LICENSE                       # Template license
-├── README.md                     # Repository and usage contract
+│       └── LAYOUT.md             # Optional visible-output fixtures
+├── .oxlintrc.json                # Type-aware Oxlint configuration
+├── AGENTS.md                     # Contributor standing orders and navigation
 ├── cordis.patch.yml              # Profile bundle contribution
-├── package.json                  # Exports, peers, dsh.bundle.patch
-├── pnpm-lock.yaml                # Reproducible registry dependency graph
-├── pnpm-workspace.yaml           # Package-manager and optional patch policy
+├── package.json                  # Exports, peers, engines, bundle metadata
+├── pnpm-lock.yaml                # Reproducible dependency graph
+├── pnpm-workspace.yaml           # Package-manager policy
 ├── tsconfig.json                 # Compiler and type-aware lint project
-├── tsdown.config.ts              # Direct source-to-runtime/declaration build
+├── tsdown.config.ts              # Source-to-runtime/declaration build
 └── vitest.config.ts              # Test runner configuration
 ```
 
-## Scalable source and test structure
+## Package contract
 
-A package may be host-only, client-only, or split across host and browser faces. Keep Loader metadata, configuration, runtime/service boundaries, browser behavior, shared contracts, and tests in the owners appropriate to the package; the template does not require every plugin to copy one fixed directory layout.
+[docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) owns the full contract. The orientation points are:
 
-The template's sample skeleton still uses `src/index.ts`, `src/config.ts`, `src/runtime.ts`, `src/invariant.ts`, `tests/harness.ts`, and `tests/plugin.spec.ts`; retain those owners when they fit the package, and document any deliberate replacement. Stable product-visible expected output belongs under the package's actual snapshot owner. Dependency and DSH-host patches use the optional `patches/` contract when needed.
+- A function plugin exports `name`, `inject`, `Config`, and `apply` as one ESM namespace and has no default export.
+- `engines.node` is `>=24.0.0`; `engines.dsh` declares the supported DSH range; `dsh.manifestVersion` and `dsh.bundle.patch` describe the public bundle layer.
+- Display metadata reaches Plugin Manager through the exported `./locale/*.json` and `./icon` resources. This template stores their physical files under `src/assets/` and lists them in `files`.
+- `@deepseek-ai/cordis` and `@deepseek-ai/schemastery` are host-supplied peers, duplicated in `devDependencies` for local checks. See [dependencies](docs/dsh-plugin-contracts.md#dependencies).
+- A browser face declares `dsh.client` and exports its built bundle at `./client`.
 
 ## Create your plugin
 
-1. Replace package identity in `package.json`, the Loader owner, configuration/runtime/invariant owners, focused test owners, bundle metadata, TypeScript metadata, `README.md`, and `AGENTS.md` as applicable. The sample skeleton names these owners explicitly; a deliberate replacement must update the package's local documentation and static-analysis configuration too.
-2. Choose and record the exact npm package name before replacing identity. It may be scoped or unscoped (for example, `comem`); do not assume the template's `@your-scope/dsh-` prefix. Use the selected name verbatim in `package.json`, bundle rows, invariant registration, exports, tests, and documentation. Replace the template package name `@your-scope/dsh-plugin-template` and plugin ids only in those identity owners. Do not perform a global replacement inside `.agents/skills/`; its generic examples and marker checks must remain reusable.
-3. Update `description`, `keywords`, `LICENSE`, and `cordis.patch.yml`.
-4. Add only the DSH host services used by the implementation to the package contract and composition patch. Keep source and build dependencies resolvable from this repository's `node_modules`; host-provided runtime APIs remain consumer-supplied peers.
-5. Replace the empty invariant installer when the package owns an authoritative event or mutable data relationship.
-6. Implement activation and host-boundary behavior in the actual runtime/service owners, moving cohesive capabilities into project-specific modules as needed. Keep `src/index.ts` limited to Loader metadata and public re-exports when that matches the package, and scope registrations through `ctx.effect()`, `ctx.on()`, or registry disposers.
-7. Keep every source, compiler, documentation, and project-reference path inside this repository. Describe files from the project root, for example `docs/dsh-plugin-contracts.md`. Do not add local-path `link:` or `file:` dependencies.
+1. Replace package identity in `package.json`, the Loader owner, configuration/runtime owners, focused tests, bundle metadata, TypeScript metadata, both READMEs, `AGENTS.md`, and `src/assets/`.
+2. Choose the exact npm package name. It may be scoped or unscoped; do not assume the template's `@your-scope/dsh-` prefix. Replace it only in identity owners, never globally inside `.agents/skills/`.
+3. Set `engines.dsh` to the range you support. Keep `engines.node` at Node 24 LTS or newer unless a different host contract is deliberate.
+4. Update `keywords`, `LICENSE`, `cordis.patch.yml`, and the display title, description, and icon.
+5. Add only the DSH host services the implementation uses. Apply [dependencies](docs/dsh-plugin-contracts.md#dependencies) when placing each package.
+6. Implement activation and host-boundary behavior in the runtime/service owners, keeping registrations fiber-owned and disposing them in tests.
+7. Keep every source, compiler, documentation, and project-reference path inside this repository. Do not add `link:` or `file:` dependencies.
 8. Set `private` to `false` only when the package's public dependencies and distribution artifacts are ready.
 
-Do not add a default export to a function plugin. Cordis Loader unwraps `exports.default ?? exports`; a stray default export discards namespace exports such as `inject`, `Config`, and `apply`.
+Do not add a default export to a function plugin. Cordis Loader unwraps `exports.default ?? exports`; a stray default export discards `inject`, `Config`, and `apply`.
 
 ## Bundled development skills
 
-DSH discovers the repository-local workflow under `.agents/skills/`. Start with [`dsh-plugin-development`](.agents/skills/dsh-plugin-development/SKILL.md) for the complete sequence, or invoke one stage directly:
+Start with [`dsh-plugin-development`](.agents/skills/dsh-plugin-development/SKILL.md) for the complete sequence, or invoke one stage directly:
 
 | Skill | Purpose |
-|---|---|
-| [`dsh-plugin-plan`](.agents/skills/dsh-plugin-plan/SKILL.md) | Decide plugin form, dependencies, configuration, invariant, composition, and evidence. |
-| [`dsh-plugin-scaffold`](.agents/skills/dsh-plugin-scaffold/SKILL.md) | Instantiate and baseline-verify a new repository from this template. |
-| [`dsh-plugin-align`](.agents/skills/dsh-plugin-align/SKILL.md) | Migrate an existing non-template repository to this toolchain without replacing product behavior. |
-| [`dsh-plugin-implement`](.agents/skills/dsh-plugin-implement/SKILL.md) | Implement lifecycle-safe Cordis behavior, metadata, docs, and invariants. |
-| [`dsh-plugin-i18n`](.agents/skills/dsh-plugin-i18n/SKILL.md) | Localize browser UI with typed dictionaries, locale seats, fallback, and disposal evidence. |
-| [`dsh-plugin-compose`](.agents/skills/dsh-plugin-compose/SKILL.md) | Install the bundle into an isolated profile and prove effective activation. |
-| [`dsh-plugin-test`](.agents/skills/dsh-plugin-test/SKILL.md) | Verify Loader exports, behavior, disposal, composition, snapshots, and artifacts. |
-| [`dsh-plugin-release`](.agents/skills/dsh-plugin-release/SKILL.md) | Check local, Git, or npm distribution readiness without publishing implicitly. |
+| --- | --- |
+| [plan](.agents/skills/dsh-plugin-plan/SKILL.md) | Decide form, dependencies, configuration, compatibility, display, composition, evidence, and distribution. |
+| [scaffold](.agents/skills/dsh-plugin-scaffold/SKILL.md) | Instantiate and baseline-verify a new repository from this template. |
+| [align](.agents/skills/dsh-plugin-align/SKILL.md) | Migrate an existing repository to this toolchain without changing behavior. |
+| [implement](.agents/skills/dsh-plugin-implement/SKILL.md) | Implement lifecycle-safe behavior, configuration, metadata, docs, and tests. |
+| [client](.agents/skills/dsh-plugin-client/SKILL.md) | Add a `dsh.client` browser face, slots, settings forms, and ModuleLoader checks. |
+| [i18n](.agents/skills/dsh-plugin-i18n/SKILL.md) | Localize browser UI with typed dictionaries and disposal evidence. |
+| [compose](.agents/skills/dsh-plugin-compose/SKILL.md) | Install the bundle into a profile and prove activation and compatibility. |
+| [test](.agents/skills/dsh-plugin-test/SKILL.md) | Select the smallest evidence for Loader, behavior, disposal, composition, and artifacts. |
+| [release](.agents/skills/dsh-plugin-release/SKILL.md) | Check packed, Git, or npm release readiness without publishing. |
 
-Keep these directories when copying the template so future sessions rooted in the plugin repository retain the same workflow.
+Keep these directories when copying the template.
 
 ## Independent development
 
-Run every command from this directory:
+Run from this repository root:
 
 ```sh
 pnpm install
 pnpm run lint
 pnpm test
 pnpm run build
+pnpm pack --dry-run --json
 ```
 
-`lint` runs Oxlint with type-aware analysis and denies warnings for the configured source and test projects. `build` runs the configured source-to-artifact pipeline, including any declaration assembly or final artifact verifier owned by the package, and emits ready-to-pack output; it does not run an install-time lifecycle build. Extra arguments are passed through to tsdown, so `pnpm run build --sourcemap` emits source maps for local debugging; the default `build` emits none.
-
-The release artifact is built from the configured source owners before packing. Profile or consumer installation uses the ready-made `lib/` output and does not run `prepare`; `pnpm pack --dry-run --json` verifies the final archive contents.
+`lint` is the type-aware static-analysis gate. `test` uses the Vitest `forks` pool; a restricted host that rejects child-process forks can run `vitest run --pool=threads` locally. `build` emits the ready-to-pack `lib/` runtime and declarations without an install-time build.
 
 ## CI
 
-Two GitHub Actions workflows ship with the template:
-
-- `.github/workflows/ci.yml` — every push to `main` and every pull request: install with the frozen lockfile, Oxlint static analysis, tests, and build.
-- `.github/workflows/release.yml` — every push to `main`: runs Oxlint, tests, builds, packs the ready-made tarball (`pnpm pack`), and follows the repository's configured GitHub Release policy.
+- [ci.yml](.github/workflows/ci.yml): frozen install, lint, tests, and build on pushes to `main` and pull requests.
+- [release.yml](.github/workflows/release.yml): the same checks, then packs the tarball and publishes it to the version's GitHub Release.
 
 ## Profile activation
 
-The package manifest declares the bundle patch:
+Install through the plugin channel:
 
-```json
-{
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  }
-}
+```sh
+dsh plugin --profile <profile> add <package-or-tarball>
 ```
 
-A DSH host may install this package into a profile and apply `cordis.patch.yml` over its own runtime composition. That host integration is intentionally outside this repository's build and test inputs. The patch composes plugins; it does not alter host source, compiler settings, build scripts, or catalogs.
-
-The invariant companion uses a narrow local interface for the host's `invariants` service. This keeps the package build independent of the host's private source package while preserving the runtime registration used by an invariants-enabled DSH profile. Insert its bundle row only when the consuming profile provides that service; ordinary `dsh-base`/`dsh-web-app` profiles should omit the row.
+Profile startup checks `engines.dsh`, applies `dsh.bundle.patch` in bundle order, and reads display metadata without activating the plugin. See [manifest and compatibility](docs/dsh-plugin-contracts.md#manifest-and-compatibility) and [bundle composition](docs/dsh-plugin-contracts.md#bundle-composition).
 
 ## Plugin forms
 
-This template demonstrates a function plugin and therefore named exports:
-
 ```ts
-// src/index.ts
 export const name = 'plugin-template'
 export const inject: string[] = []
 export { Config } from './config.ts'
 export { apply } from './runtime.ts'
 
 // src/config.ts
-export interface Config { /* serializable fields */ }
-export const Config: z<Config> = z.object({ /* validation and defaults */ })
+import Schema from '@deepseek-ai/schemastery'
+export interface PluginConfig { /* serializable fields */ }
+export const Config: Schema<PluginConfig> = Schema.object({ /* validation and defaults */ })
 
 // src/runtime.ts
-export function apply(ctx: Context, config: Config): void { /* effects */ }
+export function apply(ctx: Context, config: PluginConfig): void { /* effects */ }
 ```
 
-A service provider instead normally default-exports its `Service` subclass. Do not mix the two forms.
+`Config` is the schema value Cordis Loader validates; `PluginConfig` is the public TypeScript shape. Keeping the names distinct avoids the declaration-merge false positive in `no-redeclare`. A service provider instead default-exports its `Service` subclass; do not mix the two forms.
 
-## Distribution checks
+## Distribution
 
-Before considering packed or GitHub Release distribution, build and inspect the final archive:
+Build before packing and inspect the archive:
 
 ```sh
-pnpm run lint
-pnpm test
 pnpm run build
 pnpm pack --dry-run --json
 ```
 
-The final package must contain every runtime and declaration file named by `main`, `types`, `exports`, and `files`. Keep `private: true` until the package's DSH host peers are available through the selected distribution channel.
+The archive must contain every file promised by `main`, `types`, `exports`, and `files`, plus the bundle patch and the physical display assets. See [build and distribution](docs/dsh-plugin-contracts.md#build-and-distribution). Git installs fetch sources; only add a self-contained `prepare` build when you deliberately distribute that way and document the consumer's build-script approval.
 
-## Testing guidance
+## Testing
 
-The included test proves Loader-safe ESM exports and schema-resolved activation. Replace the activation assertions with observable behavior and disposal assertions for every registry contribution. Product-visible plugins should add a real Loader/profile composition test in the consuming DSH application rather than relying only on hand-mounted unit tests.
+The baseline tests prove Loader-safe ESM exports and schema-resolved activation. Replace the activation assertions with observable behavior and disposal assertions for every registry contribution. Product-visible plugins also need a real Loader/profile composition test in the consuming DSH application; see [tests/LAYOUT.md](tests/LAYOUT.md) and [evidence](docs/dsh-plugin-contracts.md#evidence).
