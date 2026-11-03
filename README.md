@@ -2,7 +2,7 @@
 
 English | [中文](README.zh.md)
 
-A self-contained standalone repository template for an ESM Cordis plugin targeting DeepSeek Harness 0.2.1-rc.2. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository lives below this root. A DSH host is a runtime consumer of the finished package, not a development input.
+A self-contained standalone repository template for an ESM Cordis plugin targeting DeepSeek Harness 0.2.2-alpha.3. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository lives below this root. A DSH host is a runtime consumer of the finished package, not a development input.
 
 ## Documentation map
 
@@ -59,7 +59,7 @@ A self-contained standalone repository template for an ESM Cordis plugin targeti
 [docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) owns the full contract. The orientation points are:
 
 - A function plugin exports `name`, `inject`, `Config`, and `apply` as one ESM namespace and has no default export.
-- `engines.node` is `>=24.0.0`; `engines.dsh` declares the supported DSH range; `dsh.manifestVersion` and `dsh.bundle.patch` describe the public bundle layer.
+- `engines.node` is `>=24.9.0`; `engines.dsh` declares the supported DSH range; `dsh.manifestVersion` and `dsh.bundle.patch` describe the public bundle layer.
 - Display metadata reaches Plugin Manager through the exported `./locale/*.json` and `./icon` resources. This template stores their physical files under `src/assets/` and lists them in `files`.
 - `@deepseek-ai/cordis` and `@deepseek-ai/schemastery` are host-supplied peers, duplicated in `devDependencies` for local checks. See [dependencies](docs/dsh-plugin-contracts.md#dependencies).
 - A browser face declares `dsh.client` and exports its built bundle at `./client`.

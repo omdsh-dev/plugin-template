@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-面向 DeepSeek Harness 0.2.1-rc.2 的 ESM Cordis 插件自包含独立仓库模板。仓库用到的每个源文件、编译器配置、测试夹具、贡献说明、skill 和构建辅助都位于本目录以下。DSH 宿主是成品包的运行时消费者，不是源码或构建输入。
+面向 DeepSeek Harness 0.2.2-alpha.3 的 ESM Cordis 插件自包含独立仓库模板。仓库用到的每个源文件、编译器配置、测试夹具、贡献说明、skill 和构建辅助都位于本目录以下。DSH 宿主是成品包的运行时消费者，不是源码或构建输入。
 
 ## 文档地图
 
@@ -59,7 +59,7 @@
 完整契约由 [docs/dsh-plugin-contracts.md](docs/dsh-plugin-contracts.md) 拥有。以下是方向性要点：
 
 - 函数插件以同一个 ESM 命名空间导出 `name`、`inject`、`Config` 和 `apply`，不提供 default export。
-- `engines.node` 为 `>=24.0.0`；`engines.dsh` 声明支持的 DSH 范围；`dsh.manifestVersion` 与 `dsh.bundle.patch` 描述公开的 bundle 层。
+- `engines.node` 为 `>=24.9.0`；`engines.dsh` 声明支持的 DSH 范围；`dsh.manifestVersion` 与 `dsh.bundle.patch` 描述公开的 bundle 层。
 - Plugin Manager 通过导出的 `./locale/*.json` 与 `./icon` 读取展示元数据。本模板把物理文件放在 `src/assets/` 并列入 `files`。
 - `@deepseek-ai/cordis` 与 `@deepseek-ai/schemastery` 是宿主提供的 peer，同时在 `devDependencies` 中供本地检查；详见 [dependencies](docs/dsh-plugin-contracts.md#dependencies)。
 - 有浏览器面的包声明 `dsh.client`，并在 `./client` 导出构建后的 bundle。
