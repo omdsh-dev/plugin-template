@@ -27,7 +27,7 @@ Record these facts before editing:
 | Copy inventory | visible text, labels, aria names, titles, placeholders, status text, and formatters |
 | Namespace | stable package-owned namespace and its key owner |
 | Services | Cordis `locale` service and other actual dependencies |
-| Languages | built-in `zh`/`en`, plus any separately supplied external language |
+| Languages | baseline `zh`/`en` required by typed registration; DSH 0.2.2 also ships `ja`, `es`, `fr`, `de`, `ru`, and `pt` language packs with English fallback; plus any separately supplied external language |
 | Tests | component, lifecycle, composition, and snapshot owners |
 
 ## Keep data and copy separate
@@ -148,6 +148,8 @@ If a child component is not itself a slot registrant, pass localized strings or 
 
 ## Register an external language separately
 
+DSH 0.2.2 ships `ja`, `es`, `fr`, `de`, `ru`, and `pt` as host-registered language packs with an `en` fallback. Feature copy falls back to English in those locales unless the plugin registers them, either through the typed dictionary form or through `register(ns, locale, dict)`; do not call `addLanguage()` for a language the host already ships.
+
 A normal feature plugin usually supplies only `zh` and `en`. A language-pack plugin may add a language definition and the feature's dictionary as separate effects:
 
 ```ts
@@ -156,25 +158,25 @@ export const inject = ['locale']
 export function apply(ctx: ClientContext): void {
   ctx.effect(
     () => ctx.locale.addLanguage({
-      id: 'ja',
-      label: '日本語',
+      id: 'it',
+      label: 'Italiano',
       fallback: 'en',
     }),
-    'ja: language',
+    'it: language',
   )
 
   ctx.effect(
-    () => ctx.locale.register('vendor.feature', 'ja', {
-      'panel.title': '機能パネル',
-      'panel.save': '保存',
-      'panel.count': '{count} 件',
+    () => ctx.locale.register('vendor.feature', 'it', {
+      'panel.title': 'Pannello funzionalità',
+      'panel.save': 'Salva',
+      'panel.count': '{count} elementi',
     }),
-    'ja: vendor.feature dictionary',
+    'it: vendor.feature dictionary',
   )
 }
 ```
 
-`addLanguage()` registers only the selectable language definition (`id`, `label`, and `fallback`); it does not register translations. `register(ns, locale, dict)` registers one language dictionary. The external id must be an ASCII BCP 47-style tag such as `ja`, `pt-BR`, or `zh-Hant`. The fallback chain must terminate at `en`; malformed ids, duplicate language definitions, unknown fallback targets, and cycles fail when the language is registered.
+`addLanguage()` registers only the selectable language definition (`id`, `label`, and `fallback`); it does not register translations. `register(ns, locale, dict)` registers one language dictionary. The external id must be an ASCII BCP 47-style tag such as `it`, `pt-BR`, or `zh-Hant`. The fallback chain must terminate at `en`; malformed ids, duplicate language definitions, unknown fallback targets, and cycles fail when the language is registered.
 
 The language definition and dictionary may register in either order. A dictionary can exist before its language definition or before the feature plugin that consumes it. If the feature plugin is absent, the dictionary is dormant. If it later registers its `zh`/`en` dictionaries, those entries coexist. If both plugins register the same `(namespace, locale)`, the second registration fails; agree on one owner rather than relying on order.
 
@@ -185,12 +187,12 @@ Do not use `addLanguage()` to predeclare a feature's translations. If the plugin
 Lookup first walks the active language's fallback chain in the requested namespace, then repeats that chain in `common`, and finally returns the key itself. Therefore an external language may provide only the keys it translates:
 
 ```ts
-ctx.locale.register('vendor.feature', 'ja', {
-  'panel.title': '機能パネル',
+ctx.locale.register('vendor.feature', 'it', {
+  'panel.title': 'Pannello funzionalità',
 })
 ```
 
-If `panel.save` is missing in Japanese, the lookup continues to the declared fallback dictionaries. Do not add component-side `?? 'Save'` or `if (locale === 'ja')` branches; those bypass the registry's fallback and make disposal or late registration inconsistent.
+If `panel.save` is missing in Italian, the lookup continues to the declared fallback dictionaries. Do not add component-side `?? 'Save'` or `if (locale === 'it')` branches; those bypass the registry's fallback and make disposal or late registration inconsistent.
 
 Locale registration and dictionary registration are independent from feature activation. A late dictionary registration changes the locale revision so mounted slots can render it without a remount. Registering a dictionary does not itself change the active locale or emit the active-locale change event.
 

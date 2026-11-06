@@ -207,7 +207,7 @@ git diff --check
 git status --short --branch
 ```
 
-When the agent shell exports a harness tsconfig pin, clear it per command for Tsx-driven tests or fixtures:
+Some earlier DSH agent shells exported a harness tsconfig pin; DSH 0.2.2-rc.1 does not set it for agent-shell commands (check with `printenv TSX_TSCONFIG_PATH` or `$env:TSX_TSCONFIG_PATH`). If the target environment still exports it, clear it per command for Tsx-driven tests or fixtures:
 
 ```sh
 TSX_TSCONFIG_PATH= pnpm test

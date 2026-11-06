@@ -89,7 +89,7 @@ Use the pack output to inspect files whenever exports, files, generated artifact
 
 ## Clear the harness tsconfig pin
 
-The DSH agent shell exports `TSX_TSCONFIG_PATH` pointing at the harness's own `tsconfig.json`. That pin leaks into tsx-driven scripts (tests and config loaders) and overrides the repository's entry-tsconfig discovery, which mis-resolves const enums and path aliases. Clear it per command when running tests under the agent shell:
+Some earlier DSH agent shells exported `TSX_TSCONFIG_PATH` pointing at the harness's own `tsconfig.json`. That pin leaks into tsx-driven scripts (tests and config loaders) and overrides the repository's entry-tsconfig discovery, which mis-resolves const enums and path aliases. DSH 0.2.2-rc.1 does not set that pin for agent-shell commands; check with `printenv TSX_TSCONFIG_PATH` on a POSIX shell or `$env:TSX_TSCONFIG_PATH` in PowerShell, which print nothing when it is unset. If an older or custom host still exports it, clear it per command when running tests under the agent shell:
 
 ```sh
 TSX_TSCONFIG_PATH= pnpm test

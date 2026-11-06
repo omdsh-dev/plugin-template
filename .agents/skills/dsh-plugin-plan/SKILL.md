@@ -61,7 +61,7 @@ If the plugin adds model-visible input, plan the durable session event that make
 
 ## Decide DSH compatibility
 
-Record the supported DSH range for `engines.dsh`. Prefer an explicit range that includes the release line the package actually supports, for example `>=0.2.1-rc.2 <0.3.0` for this template line. Remember that when `engines.dsh` is present it alone decides installation and startup compatibility; DSH peer ranges are ignored. Plan the exact-version exemption guidance for users when the package intentionally spans a range.
+Record the supported DSH range for `engines.dsh`. Prefer an explicit range that includes the release line the package actually supports, for example `>=0.2.2-0 <0.3.0` for this template line. Remember that when `engines.dsh` is present it alone decides installation and startup compatibility; DSH peer ranges are ignored. Plan the exact-version exemption guidance for users when the package intentionally spans a range.
 
 ## Decide display and browser resources
 

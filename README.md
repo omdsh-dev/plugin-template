@@ -2,7 +2,7 @@
 
 English | [中文](README.zh.md)
 
-A self-contained standalone repository template for an ESM Cordis plugin targeting DeepSeek Harness 0.2.2-alpha.3. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository lives below this root. A DSH host is a runtime consumer of the finished package, not a development input.
+A self-contained standalone repository template for an ESM Cordis plugin targeting DeepSeek Harness 0.2.2-rc.1. Every source file, compiler setting, test fixture, contributor instruction, skill, and build helper used by the repository lives below this root. A DSH host is a runtime consumer of the finished package, not a development input.
 
 ## Documentation map
 

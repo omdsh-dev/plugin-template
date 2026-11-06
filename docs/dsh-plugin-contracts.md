@@ -1,6 +1,6 @@
 # Standalone DSH Plugin Contracts
 
-This reference ships with the template so planning, implementation, testing, and distribution use only guidance stored below the repository root. It targets the DeepSeek Harness 0.2.2-alpha.3 plugin contract.
+This reference ships with the template so planning, implementation, testing, and distribution use only guidance stored below the repository root. It targets the DeepSeek Harness 0.2.2-rc.1 plugin contract.
 
 ## Repository boundary
 
@@ -64,7 +64,7 @@ Every listener, registry entry, timer, watcher, child process, and callback regi
 
 `package.json` declares the bundle patch with `dsh.bundle.patch`. The value may be one path or an ordered list; each path is relative to the package root, and the launcher applies the list in order as one bundle layer. `cordis.patch.yml` inserts or overrides plugin rows; it does not change source files, compiler settings, catalogs, or launcher code. An id-targeted override replaces the complete `config`, so retained fields must be restated. The package row name must resolve through the consuming DSH profile.
 
-Rows in a bundle patch use `insert` or id-targeted overrides. Layers apply in `dsh.profile.bundles` order; profile, home, command-line, and launcher patches may override them later. An id-targeted override replaces the row's complete `config` value, so retained fields must be restated. A patch targeting an absent id warns on stderr; inspect the effective tree and treat the warning as failed composition unless absence is intentional. The Loader dialect supports `!!js` expressions only in plugin `config`; metadata such as `id`, `name`, and `disabled` stays literal. Keep credentials out of patches; use credential references or environment-variable names. An empty or comments-only patch parses to no list and is invalid; use `[]` for an intentionally empty layer.
+Rows in a bundle patch use `insert` or id-targeted overrides. Layers apply in `dsh.profile.bundles` order; profile, home, command-line, and launcher patches may override them later. An id-targeted override replaces the row's complete `config` value, so retained fields must be restated. A patch targeting an absent id warns on stderr; inspect the effective tree and treat the warning as failed composition unless absence is intentional. The Loader dialect supports `!!js` expressions in plugin `config` values and in the `disabled` gate; metadata such as `id` and `name` stays literal. Keep credentials out of patches; use credential references or environment-variable names. An empty or comments-only patch parses to no list and is invalid; use `[]` for an intentionally empty layer.
 
 ## Version compatibility and exemptions
 

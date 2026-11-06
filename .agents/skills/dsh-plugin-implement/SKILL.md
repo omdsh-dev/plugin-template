@@ -69,7 +69,7 @@ Only add a client face when the planned behavior needs it. Declare `dsh.client` 
 
 Keep `package.json` exports, files, peers, development dependencies, `engines.dsh`, `dsh.manifestVersion`, `dsh.bundle.patch`, `dsh.client`, TypeScript references, display resources, and `cordis.patch.yml` synchronized with code. A bundle patch inserts or overrides profile rows only; host source modifications belong in DSH itself and cannot be represented by `cordis.patch.yml`.
 
-An id-targeted patch replaces the complete target `config`; restate every retained field. Keep static Loader metadata outside `!!js`; JavaScript interpolation is permitted only under plugin `config` in DSH composition.
+An id-targeted patch replaces the complete target `config`; restate every retained field. Static metadata such as `id` and `name` stays literal; `!!js` interpolation is permitted in plugin `config` values and in the `disabled` gate in DSH composition.
 
 ## Document the package contract
 

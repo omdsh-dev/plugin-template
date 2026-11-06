@@ -3,13 +3,13 @@ packages:
 
 autoInstallPeers: false
 
-# DSH 0.2.2-alpha.3 vendors these exact @deepseek-ai packages, which were published
+# DSH 0.2.2-rc.1 vendors these exact @deepseek-ai packages, which were published
 # inside the supply-chain policy window. Re-review these pins when bumping DSH.
 minimumReleaseAgeExclude:
-  - '@deepseek-ai/cordis@4.0.6-alpha.2'
-  - '@deepseek-ai/cordis-plugin-loader@1.0.7-alpha.2'
-  - '@deepseek-ai/cosmokit@1.8.7-alpha.2'
-  - '@deepseek-ai/schemastery@3.18.6-alpha.2'
+  - '@deepseek-ai/cordis@4.1.0'
+  - '@deepseek-ai/cordis-plugin-loader@1.1.0'
+  - '@deepseek-ai/cosmokit@1.9.0'
+  - '@deepseek-ai/schemastery@3.19.0'
 
 # Runtime and declaration builds run explicitly in CI and before packing; no
 # install-time prepare hook is required.

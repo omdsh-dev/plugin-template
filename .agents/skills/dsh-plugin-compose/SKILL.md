@@ -18,7 +18,7 @@ The package manifest must point at a shipped patch:
 ```json
 {
   "engines": {
-    "dsh": ">=0.2.1-rc.2 <0.3.0"
+    "dsh": ">=0.2.2-0 <0.3.0"
   },
   "dsh": {
     "manifestVersion": 1,
