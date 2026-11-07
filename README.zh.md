@@ -101,6 +101,7 @@
 
 ```sh
 pnpm install
+pnpm run fmt:check
 pnpm run lint
 pnpm test
 pnpm run build
@@ -111,8 +112,14 @@ pnpm pack --dry-run --json
 
 ## CI
 
-- [ci.yml](.github/workflows/ci.yml)：冻结安装、lint、测试与构建，覆盖 `main` 推送和 pull request。
-- [release.yml](.github/workflows/release.yml)：执行同样检查后打包 tarball，并发布到对应版本的 GitHub Release。
+- [check.yml](.github/workflows/check.yml)：在 `main` 推送、pull request 与手动触发时运行检查，两个构建 workflow 都会调用它。
+- [test-build.yml](.github/workflows/test-build.yml)：只能手动触发，构建测试包。
+- [release-build.yml](.github/workflows/release-build.yml)：由 `v*.*.*` tag 或手动触发构建发布包。
+- [npm-publish.yml](.github/workflows/npm-publish.yml)：先校验 SHA256，再通过 OIDC trusted publishing 把成功的 test 或 release 构建发布到 npm。
+
+普通 `main` 推送只运行检查，不会触发发布。包配置好 trusted publisher 后，test 与 release 构建会进入 npm 发布流程。
+
+npm 配置、版本规则与 provenance 限制见 [release skill](.agents/skills/dsh-plugin-release/SKILL.md#npm-trusted-publishing)。
 
 ## Profile 激活
 

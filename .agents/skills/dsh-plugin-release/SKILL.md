@@ -81,6 +81,17 @@ Ensure generated `lib/`, `node_modules/`, coverage output, and local tarballs ar
 
 If the repository has a release workflow, follow its documented version, tag, overwrite, checksum, and artifact naming policy; do not infer that an existing release may be overwritten or that a checksum is published. Tagging, GitHub release creation, npm authentication, `pnpm publish`, and pushing are separate user-authorized actions; when authorized, inspect the destination and package owner before executing them and never print tokens.
 
+### npm trusted publishing
+
+For npm publication or CI changes, read [check.yml](../../../.github/workflows/check.yml), [test-build.yml](../../../.github/workflows/test-build.yml), [release-build.yml](../../../.github/workflows/release-build.yml), and [npm-publish.yml](../../../.github/workflows/npm-publish.yml) for the exact triggers, version derivation, artifact handling, and publish flags.
+
+1. Confirm the current manifest names the real package and a version npm has not published; the workflow files carry the tag, test-version, and dist-tag rules.
+2. Set `repository.url` to the public GitHub source repository, exact case; npm provenance uses that field to identify the publishing source, and the template ships no `repository` metadata. Bootstrap the npm package if absent and configure one Trusted Publisher for the exact repository and `npm-publish.yml` filename; both are external user actions, so report them unverified unless checked.
+3. Keep all four workflow files on the default branch before running the pipeline. Obtain explicit publish authority before a test-build or release-build dispatch or a `v*.*.*` tag; each publishes the selected version to the public registry, including test builds. A `main` push runs checks only and cannot publish.
+4. Confirm the publish job verifies every SHA256 entry before publishing and that the version is new: republishing an exact npm version fails, while a test rerun produces a distinct version from its new run attempt. Report any prerequisite still pending before claiming publication readiness. The pipeline creates no GitHub Release.
+
+npm provenance records the publish run on the default branch, so its `GITHUB_SHA` and `GITHUB_REF` can differ from the git ref the build packed. `SOURCE_COMMIT_SHA` is informational and does not override npm's provenance source; report the concrete publisher and build refs; do not claim build-ref lineage.
+
 ## Git source installations
 
 A Git install fetches sources, not built artifacts. Do not claim Git readiness unless the repository has a self-contained `prepare` build and the consumer has approved that package's build script. Prefer npm or tarball distribution for this template, which ships ready-made `lib/` output and needs no install-time build permission.

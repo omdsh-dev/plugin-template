@@ -101,6 +101,7 @@ Run from this repository root:
 
 ```sh
 pnpm install
+pnpm run fmt:check
 pnpm run lint
 pnpm test
 pnpm run build
@@ -111,8 +112,14 @@ pnpm pack --dry-run --json
 
 ## CI
 
-- [ci.yml](.github/workflows/ci.yml): frozen install, lint, tests, and build on pushes to `main` and pull requests.
-- [release.yml](.github/workflows/release.yml): the same checks, then packs the tarball and publishes it to the version's GitHub Release.
+- [check.yml](.github/workflows/check.yml): runs checks on `main` pushes, pull requests, and manual dispatch, and both build workflows call it.
+- [test-build.yml](.github/workflows/test-build.yml): manually builds a test package.
+- [release-build.yml](.github/workflows/release-build.yml): builds a release package from a `v*.*.*` tag or a manual dispatch.
+- [npm-publish.yml](.github/workflows/npm-publish.yml): verifies SHA256 and publishes a successful test or release build to npm through OIDC trusted publishing.
+
+A plain `main` push runs checks only. Test and release builds lead to npm publication when the package's trusted publisher is configured.
+
+For npm setup, version rules, and provenance limits, read [release skill](.agents/skills/dsh-plugin-release/SKILL.md#npm-trusted-publishing).
 
 ## Profile activation
 
