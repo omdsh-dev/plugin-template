@@ -1,0 +1,117 @@
+name: release-build
+
+# Version-tag entry (or manual): verify the tag against the package version,
+# build, pack the tarball and upload it with a SHA256 manifest.
+# Publishing never happens here: npm Trusted Publishing only allows one CI
+# workflow per package, so the actual publish is done solely by npm-publish.yml
+# through workflow_run.
+"on":
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: pnpm
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Read package version
+        id: read-version
+        run: |
+          set -euo pipefail
+          version="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "packing ${version}"
+
+      - name: Verify tag and package version
+        if: github.ref_type == 'tag'
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          manifest=package.json
+          name="$(node -p "require('./${manifest}').name")"
+          package_version="$(node -p "require('./${manifest}').version")"
+          if [[ "${package_version}" != "${version}" ]]; then
+            echo "::error::${name}@${package_version} does not match ${RELEASE_TAG}"
+            exit 1
+          fi
+          echo "verified ${name}@${package_version}"
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Pack tarball
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/plugin-packages"
+          pnpm pack --pack-destination "$RUNNER_TEMP/plugin-packages"
+
+      - name: Write manifest
+        env:
+          PACK_VERSION: ${{ steps.read-version.outputs.version }}
+          PACK_DIR: ${{ runner.temp }}/plugin-packages
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { createHash } from "node:crypto"
+          import { existsSync, readFileSync, writeFileSync } from "node:fs"
+          const pkg = JSON.parse(readFileSync("package.json", "utf8"))
+          const version = pkg.version
+          if (process.env.PACK_VERSION !== version) {
+            throw new Error(
+              `package version ${version} does not match expected ${process.env.PACK_VERSION}`
+            )
+          }
+          const base = pkg.name.replace(/^@/, "").replace(/\//g, "-")
+          const file = `${base}-${version}.tgz`
+          const path = `${process.env.PACK_DIR}/${file}`
+          if (!existsSync(path)) {
+            throw new Error(`missing tarball: ${path}`)
+          }
+          const sha256 = createHash("sha256")
+            .update(readFileSync(path))
+            .digest("hex")
+          const packages = [{ name: pkg.name, file, sha256 }]
+          const manifest = { mode: "release", version, packages }
+          writeFileSync(
+            `${process.env.PACK_DIR}/manifest.json`,
+            JSON.stringify(manifest, null, 2) + "\n"
+          )
+          console.log(`manifest: ${packages.length} package @ ${version}`)
+          EOF
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: plugin-packages
+          path: ${{ runner.temp }}/plugin-packages
+          retention-days: 14

@@ -1,0 +1,83 @@
+name: npm-publish
+
+# The only trusted-publishing workflow. npm Trusted Publishing only allows one
+# CI workflow per package, so this is the single file with id-token: write that
+# ever runs npm publish. It is triggered when test-build.yml or release-build.yml
+# finishes: it downloads their tarballs, verifies the SHA256 manifest, then
+# publishes the tarball with npm (OIDC exchanges the Actions identity for a
+# short-lived npm credential). Configure this exact workflow filename as the
+# trusted publisher for the npm package on npmjs.com.
+"on":
+  workflow_run:
+    workflows: [test-build, release-build]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      RUN_MODE: ${{ github.event.workflow_run.name }}
+      SOURCE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
+      SOURCE_COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: plugin-packages
+          path: packages
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Verify SHA256 and publish tarball
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { execFileSync } from "node:child_process"
+          import { createHash } from "node:crypto"
+          import { readFileSync } from "node:fs"
+          const manifest = JSON.parse(readFileSync("packages/manifest.json", "utf8"))
+          const isTest = process.env.RUN_MODE === "test-build"
+          for (const p of manifest.packages) {
+            const path = `./packages/${p.file}`
+            const sha256 = createHash("sha256")
+              .update(readFileSync(path))
+              .digest("hex")
+            if (sha256 !== p.sha256) {
+              console.error(
+                `SHA256 mismatch for ${p.file}: expected ${p.sha256}, got ${sha256}`
+              )
+              process.exit(1)
+            }
+            console.log(`verified ${p.file}`)
+          }
+          for (const p of manifest.packages) {
+            const args = [
+              "publish", `./packages/${p.file}`,
+              "--access", "public",
+              "--provenance",
+              "--registry", "https://registry.npmjs.org/",
+            ]
+            if (isTest) {
+              // npm requires prerelease versions to carry an explicit dist-tag.
+              args.push("--tag", "test")
+            }
+            console.log(`publishing ${p.name}@${manifest.version} (${p.file})`)
+            execFileSync("npm", args, { stdio: "inherit" })
+          }
+          console.log(`package published: ${manifest.mode} ${manifest.version}`)
+          EOF
