@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-release
-description: Check packed, Git, or npm release readiness for this DSH plugin without publishing: identity, compatibility, artifacts, clean consumer, and docs.
+description: "Check packed, Git, or npm release readiness for this DSH plugin without publishing: identity, compatibility, artifacts, clean consumer, and docs."
 ---
 
 # Prepare a Plugin for Distribution
@@ -12,7 +12,7 @@ This skill proves that a plugin's ready-made artifact can be consumed through th
 Record one or more intended channels:
 
 - **Packed local artifact:** consumer installs the tarball produced inside this repository; no repository-relative `link:` or `file:` dependency is allowed.
-- **Git source:** only supported when the repository deliberately tracks complete built output or documents a separate source-build step; the selected repository channel determines which model applies.
+- **Git source:** only supported with a self-contained `prepare` build and the consumer's explicit package-manager build-script approval.
 - **npm/tarball:** consumer installs prepacked files; the tarball must already contain every exported runtime, declaration, locale, icon, and client artifact.
 
 Keep `private: true` unless npm publication is explicitly intended. A private package may still be consumed as a packed local artifact or from a GitHub Release. Distribution readiness does not grant permission to make it public.

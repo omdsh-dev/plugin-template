@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-implement
-description: Implement a planned standalone DSH plugin: plugin form, injections, schema configuration, fiber-owned registrations, display resources, docs, and focused tests.
+description: "Implement a planned standalone DSH plugin: plugin form, injections, schema configuration, fiber-owned registrations, display resources, docs, and focused tests."
 ---
 
 # Implement a Standalone DSH Plugin

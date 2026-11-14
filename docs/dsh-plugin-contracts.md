@@ -1,6 +1,6 @@
 # Standalone DSH Plugin Contracts
 
-This reference ships with the template so planning, implementation, testing, and distribution use only guidance stored below the repository root. It targets the DeepSeek Harness 0.2.2-rc.1 plugin contract.
+This reference ships with the template so planning, implementation, testing, and distribution use only guidance stored below the repository root. It targets the DeepSeek Harness 0.2.2-rc.3 plugin contract.
 
 ## Repository boundary
 

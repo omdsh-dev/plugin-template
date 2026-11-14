@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-scaffold
-description: Create and baseline-verify a new standalone DSH plugin repository from this template: identity, dependencies, metadata, lockfile, lint, tests, build, and pack.
+description: "Create and baseline-verify a new standalone DSH plugin repository from this template: identity, dependencies, metadata, lockfile, lint, tests, build, and pack."
 ---
 
 # Scaffold a Plugin Repository

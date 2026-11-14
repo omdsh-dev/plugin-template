@@ -3,7 +3,7 @@ packages:
 
 autoInstallPeers: false
 
-# DSH 0.2.2-rc.1 vendors these exact @deepseek-ai packages, which were published
+# DSH 0.2.2-rc.3 vendors these exact @deepseek-ai packages, which were published
 # inside the supply-chain policy window. Re-review these pins when bumping DSH.
 minimumReleaseAgeExclude:
   - '@deepseek-ai/cordis@4.1.0'

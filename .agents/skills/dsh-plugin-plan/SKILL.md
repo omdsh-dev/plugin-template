@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-plan
-description: Plan a standalone DSH plugin: form, dependencies, configuration, compatibility, display, composition, evidence, and distribution before code is written.
+description: "Plan a standalone DSH plugin: form, dependencies, configuration, compatibility, display, composition, evidence, and distribution before code is written."
 ---
 
 # Plan a Standalone DSH Plugin

@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-test
-description: Select and run evidence for a DSH plugin: Loader exports, behavior, disposal, profile composition, client artifact, visible snapshots, and built paths.
+description: "Select and run evidence for a DSH plugin: Loader exports, behavior, disposal, profile composition, client artifact, visible snapshots, and built paths."
 ---
 
 # Test a Standalone DSH Plugin

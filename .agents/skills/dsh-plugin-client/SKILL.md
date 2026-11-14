@@ -1,6 +1,6 @@
 ---
 name: dsh-plugin-client
-description: Add or refactor a DSH browser client face: dsh.client manifest, ModuleLoader bundle, slots, settings forms, JSX, and artifact checks. Use with dsh-plugin-i18n for visible copy.
+description: "Add or refactor a DSH browser client face: dsh.client manifest, ModuleLoader bundle, slots, settings forms, JSX, and artifact checks. Use with dsh-plugin-i18n for visible copy."
 ---
 
 # Build a DSH Plugin Client
@@ -50,6 +50,7 @@ A browser-facing package declares `dsh.client` and exports its built bundle at `
   "files": [
     "lib/index.js",
     "lib/client.js",
+    "cordis.patch.yml",
     "lib/types/**/*.d.ts",
     "src/assets/locale/*.json",
     "src/assets/icon.svg"
